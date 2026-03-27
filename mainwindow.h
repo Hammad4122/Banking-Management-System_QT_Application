@@ -2,6 +2,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QWidget>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,5 +26,9 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QPushButton *EnableButton;
+    QPushButton *DisableButton;
+    QLineEdit *input;
+
 };
 #endif // MAINWINDOW_H
