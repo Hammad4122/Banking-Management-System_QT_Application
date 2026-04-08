@@ -18,10 +18,15 @@ private slots:
     void openSignup();
 
 private:
+    QLabel *titleLabel;
+    QLabel *statusLabel;
+    QLabel *logoLabel;
+    QLabel *logoTitleLabel;
     QLineEdit *userField;
     QLineEdit *passField;
     QPushButton *loginBtn;
     QPushButton *signupLink;
+
 };
 
 #endif

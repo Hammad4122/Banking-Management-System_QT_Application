@@ -20,7 +20,7 @@ public:
     // Matches 'Users' table
     bool registerUser(QString firstName, QString lastName, QString userName,
                       QString email, QString password, QString mobile);
-    bool loginUser(QString userName, QString password);
+    int loginUser(QString userName, QString password);
 
     // --- Account Operations ---
     // Matches 'Accounts' table

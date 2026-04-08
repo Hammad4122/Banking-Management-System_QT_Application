@@ -60,8 +60,8 @@ bool BankDB::registerUser(QString firstName, QString lastName, QString userName,
     return query.exec();
 }
 
-bool BankDB::loginUser(QString userName, QString password) {
-    // Convert plain text password to a SHA-256 Hash
+int BankDB::loginUser(QString userName, QString password) {
+    // 1. Hash the password (exactly like you had it)
     QByteArray passwordData = password.toUtf8();
     QString hashedPath = QString(QCryptographicHash::hash(passwordData, QCryptographicHash::Sha256).toHex());
 
@@ -70,7 +70,14 @@ bool BankDB::loginUser(QString userName, QString password) {
     query.addBindValue(userName);
     query.addBindValue(hashedPath);
 
-    return (query.exec() && query.next());
+    // 2. Execute and check results
+    if (query.exec() && query.next()) {
+        // Return the actual ID from the first column (index 0)
+        return query.value(0).toInt();
+    }
+
+    // 3. Return -1 if login fails (standard C++ "error" indicator)
+    return -1;
 }
 
 // --- Account Operations ---
