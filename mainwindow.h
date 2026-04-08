@@ -22,13 +22,20 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    void updateButtonStyles(QPushButton*);
     ~MainWindow();
 
 private:
     Ui::MainWindow *ui;
-    QPushButton *EnableButton;
-    QPushButton *DisableButton;
-    QLineEdit *input;
+    QPushButton *dashboard;
+    QPushButton *transactions;
+    QPushButton *accounts;
+    QVBoxLayout *contentLayout; // Move this from constructor to class member
+
+    void showDashboard();
+    void showTransactions();
+    void showAccounts();
+    void clearLayout(QLayout *layout);
 
 };
 #endif // MAINWINDOW_H
