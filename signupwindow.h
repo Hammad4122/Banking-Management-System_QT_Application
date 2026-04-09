@@ -1,10 +1,14 @@
 #ifndef SIGNUPWINDOW_H
 #define SIGNUPWINDOW_H
 
-class signup
+#include "basepage.h"
+class SignupWindow: public BasePage
 {
+    Q_OBJECT
 public:
-    signup();
+    explicit SignupWindow(QWidget *parent = nullptr);
+signals:
+
 };
 
 #endif // SIGNUPWINDOW_H

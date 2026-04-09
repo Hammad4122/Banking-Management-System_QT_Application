@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "signupwindow.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QWidget>
@@ -9,7 +10,6 @@
 #include <QStyle>
 #include <QTableWidget>
 #include <QHeaderView>
-#include "loginwindow.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -18,6 +18,34 @@ MainWindow::MainWindow(QWidget *parent)
     setFixedSize(1200,600);
     setWindowTitle("Banking Management System");
 
+    // 1. Create the Stacked Widget
+    stackedWidget = new QStackedWidget(this);
+    setCentralWidget(stackedWidget);
+
+    // 2. Create your pages
+    loginPage = new LoginWindow();
+    signupPage = new SignupWindow();
+    dashboardPage = new DashboardWindow();
+
+    // 3. Add them to the stack
+    stackedWidget->addWidget(loginPage);    // Index 0
+    stackedWidget->addWidget(signupPage);   // Index 1
+    stackedWidget->addWidget(dashboardPage); // Index 2
+
+    // // Add this right before or after you add the pages to the stack
+    // loginPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // dashboardPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    // 4. Start with Login
+    stackedWidget->setCurrentIndex(0);
+
+    // Connect the login signal to a lambda that switches the index
+    connect(loginPage, &LoginWindow::signupRequested,[this](){
+        stackedWidget->setCurrentIndex(1);
+    });
+    connect(loginPage, &LoginWindow::loginSuccessful, [this]() {
+        stackedWidget->setCurrentIndex(2); // Switch to Dashboard
+    });
 }
 
 //     QWidget *centeral = new QWidget(this);

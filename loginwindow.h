@@ -1,13 +1,14 @@
 #ifndef LOGINWINDOW_H
 #define LOGINWINDOW_H
 
+#include "basepage.h"
 #include <QMainWindow>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
 #include <QVBoxLayout>
 
-class LoginWindow : public QMainWindow
+class LoginWindow : public BasePage
 {
     Q_OBJECT
 public:
@@ -16,7 +17,9 @@ public:
 private slots:
     void handleLogin();
     void openSignup();
-
+signals:
+    void loginSuccessful();
+    void signupRequested();
 private:
     QLabel *titleLabel;
     QLabel *statusLabel;

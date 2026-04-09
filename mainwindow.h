@@ -8,7 +8,10 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-
+#include <QStackedWidget>
+#include "loginwindow.h"
+#include "dashboardwindow.h"
+#include "signupwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,6 +34,11 @@ private:
     QPushButton *transactions;
     QPushButton *accounts;
     QVBoxLayout *contentLayout; // Move this from constructor to class member
+    QStackedWidget *stackedWidget;
+    LoginWindow *loginPage;
+    DashboardWindow *dashboardPage;
+    SignupWindow *signupPage;
+
 
     void showDashboard();
     void showTransactions();

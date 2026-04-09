@@ -30,6 +30,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         bank.h bank.cpp
         loginwindow.h loginwindow.cpp
         signupwindow.h signupwindow.cpp
+        dashboardwindow.h dashboardwindow.cpp
+        basepage.h basepage.cpp
     )
 else()
     if(ANDROID)

@@ -2,19 +2,20 @@
 #include "database.h"
 #include <QMessageBox>
 #include <QGraphicsDropShadowEffect>
+#include <QPainter>
+#include <QStyleOption>
 
-LoginWindow::LoginWindow(QWidget *parent) : QMainWindow(parent)
+LoginWindow::LoginWindow(QWidget *parent): BasePage(parent)
 {
-    setFixedSize(1200, 600); // Keeping it consistent with your MainWindow size
-    setWindowTitle("BMS - Secure Login");
-
     // Login Widget
-    QWidget *central = new QWidget();
-    central->setObjectName("loginCentral");
-    setCentralWidget(central);
+    // QWidget *central = new QWidget();
+    // central->setObjectName("loginCentral");
+    // setCentralWidget(central);
+
+    this->setObjectName("loginPage");
 
     // Main Layout
-    QVBoxLayout *mainLayout = new QVBoxLayout(central);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setObjectName("mainLayout");
     mainLayout->setContentsMargins(30,20,50,50);
     mainLayout->setAlignment(Qt::AlignCenter);
@@ -107,7 +108,7 @@ LoginWindow::LoginWindow(QWidget *parent) : QMainWindow(parent)
 
     // STYLING
     this->setStyleSheet(
-        "#loginCentral { background-color: #F5F7FA; }"
+        "#loginPage { background-color: #F5F7FA; }"
         "#loginCard { background-color: #FFFFFF; border-radius: 20px;}"
         "#loginTitle { font-size: 26px; font-weight: bold; color: #273671; }"
         "#statusLabel {font-size: 13px; font-weight: normal;}"
@@ -131,31 +132,36 @@ LoginWindow::LoginWindow(QWidget *parent) : QMainWindow(parent)
 }
 
 void LoginWindow::handleLogin() {
-    // Here is where you use the logic from earlier
-    QString user = userField->text();
+    QString user = userField->text().trimmed();
     QString pass = passField->text();
 
-    BankDB db;
+    // 1. Mandatory Fields Check
+    if (user.isEmpty() || pass.isEmpty()) {
+        statusLabel->setText("Please enter both username and password.");
+        statusLabel->setStyleSheet("color: #E67E22;"); // Soft Warning Orange
+        statusLabel->show();
+        return;
+    }
 
-
-
-    // db.loginUser(user, pass) logic goes here
-    if (user == "admin" && !pass.isEmpty()) { // Temporary check
-        if (user == "admin" && pass == "1234"){
-            QMessageBox::information(this,"Login","Login Successful");
-        }
-        else {
+    // 2. Credential Verification
+    // (In the future, 'db.loginUser(user, pass)' will replace this part)
+    if (user == "admin") {
+        if (pass == "1234") {
+            QMessageBox::information(this, "Login", "Login Successful");
+            emit loginSuccessful();
+        } else {
+            statusLabel->setText("Incorrect Password. Please try again.");
+            statusLabel->setStyleSheet("color: #FF4D4D;"); // Error Red
             statusLabel->show();
-            statusLabel->setText("Incorrect Username or Password");
-            statusLabel->setStyleSheet("color: #FF4D4D;");
         }
     } else {
-        statusLabel->show();
-        statusLabel->setText("User not found. Signup to Create an Account");
+        statusLabel->setText("User not found. Please Signup first.");
         statusLabel->setStyleSheet("color: #FF4D4D;");
+        statusLabel->show();
     }
 }
 
 void LoginWindow::openSignup() {
     // Code to switch to your SignupWindow class
+    emit signupRequested();
 }
