@@ -1,5 +1,4 @@
 #include "loginwindow.h"
-#include "database.h"
 #include <QMessageBox>
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
@@ -115,10 +114,11 @@ LoginWindow::LoginWindow(QWidget *parent): BasePage(parent)
         "QLabel { color: #273671; font-weight: bold; font-size: 13px; }"
         "QLineEdit { color: black; border: 1px solid #E6E9F4; border-radius: 8px; padding-left: 10px; background: #FFFFFF; }"
         "QLineEdit:focus { border: 1.5px solid #2D60FF; }"
-        "QPushButton { background-color: #2D60FF; color: white; border-radius: 8px; font-weight: bold; font-size: 15px; }"
+        "QPushButton { background-color: #2D60FF; color: white; border-radius: 8px; font-weight: bold; font-size: 15px;}"
         "QPushButton:hover { background-color: #1A4DDF; }"
         "#linkBtn { background: transparent; color: #2D60FF; border: none; font-size: 13px; font-weight: normal; }"
         "#linkBtn:hover { text-decoration: underline; }"
+        "QPushButton:pressed {background-color: #1a3ddf; margin-top: 2px;}"
         );
 
     // Connections
@@ -137,7 +137,7 @@ void LoginWindow::handleLogin() {
 
     // 1. Mandatory Fields Check
     if (user.isEmpty() || pass.isEmpty()) {
-        statusLabel->setText("Please enter both username and password.");
+        statusLabel->setText("Fields cannot be empty.");
         statusLabel->setStyleSheet("color: #E67E22;"); // Soft Warning Orange
         statusLabel->show();
         return;
@@ -145,8 +145,8 @@ void LoginWindow::handleLogin() {
 
     // 2. Credential Verification
     // (In the future, 'db.loginUser(user, pass)' will replace this part)
-    if (user == "admin") {
-        if (pass == "1234") {
+    if (db.userExist(user)) {
+        if (db.loginUser(user,pass) != -1) {
             QMessageBox::information(this, "Login", "Login Successful");
             emit loginSuccessful();
         } else {
@@ -162,6 +162,23 @@ void LoginWindow::handleLogin() {
 }
 
 void LoginWindow::openSignup() {
-    // Code to switch to your SignupWindow class
+    // Code to switch to SignupWindow class
+    resetForm();
     emit signupRequested();
 }
+
+void LoginWindow::resetForm(){
+
+    // 1. Group all fields
+    QList<QLineEdit*> fields = { userField, passField};
+
+    // 2. Clear text and reset styles
+    for(QLineEdit* f : fields) {
+        f->clear();
+        f->setStyleSheet("");
+    }
+
+    // 3. Hide all potential error messages
+    statusLabel->hide();
+
+};

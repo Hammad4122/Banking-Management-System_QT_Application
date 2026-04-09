@@ -21,6 +21,8 @@ public:
     bool registerUser(QString firstName, QString lastName, QString userName,
                       QString email, QString password, QString mobile);
     int loginUser(QString userName, QString password);
+    bool userExist(QString userName);
+    bool emailExist(QString email);
 
     // --- Account Operations ---
     // Matches 'Accounts' table
@@ -36,6 +38,7 @@ public:
     // --- Data Retrieval ---
     // To fetch the list of transactions for a user's statement
     void getTransactionHistory(int accountId);
+
 };
 
 #endif // DATABASE_H

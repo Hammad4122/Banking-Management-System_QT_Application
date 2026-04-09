@@ -10,11 +10,13 @@
 #include <QStyle>
 #include <QTableWidget>
 #include <QHeaderView>
+#include <QDebug>
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+
     setFixedSize(1200,600);
     setWindowTitle("Banking Management System");
 
@@ -39,6 +41,9 @@ MainWindow::MainWindow(QWidget *parent)
     // 4. Start with Login
     stackedWidget->setCurrentIndex(0);
 
+    connect(signupPage, &SignupWindow::loginRequested,[this](){
+        stackedWidget->setCurrentIndex(0);
+    });
     // Connect the login signal to a lambda that switches the index
     connect(loginPage, &LoginWindow::signupRequested,[this](){
         stackedWidget->setCurrentIndex(1);

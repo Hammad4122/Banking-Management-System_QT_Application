@@ -30,6 +30,8 @@ private:
     QPushButton *loginBtn;
     QPushButton *signupLink;
 
+    void resetForm();
+
 };
 
 #endif

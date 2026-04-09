@@ -1,11 +1,416 @@
 #include "signupwindow.h"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QGraphicsDropShadowEffect>
+#include <QRegularExpression>
 
 SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     this->setObjectName("signupPage");
 
+    // Main Layout
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setObjectName("mainLayout");
+    mainLayout->setContentsMargins(30,20,50,50);
+    mainLayout->setAlignment(Qt::AlignCenter);
+
+    // Create the label for the logo
+    logoLabel = new QLabel();
+    QPixmap logoPixmap("C:\\Bahria University\\2nd Semester\\Projects\\OOPs_Lab\\BankingManagementSystem_Project\\bank_pic.png"); // Path from your .qrc
+    logoLabel->setPixmap(logoPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    // Header Layout
+    QHBoxLayout *headerLayout = new QHBoxLayout();
+    headerLayout->setContentsMargins(0, 0, 0, 0); // Give it some padding from the window edge
+    headerLayout->setSpacing(10); // Space between logo and text
+
+    // Logo Title Label
+    logoTitleLabel = new QLabel("<b>Banking</b><br>Management System", this);
+    logoTitleLabel->setStyleSheet("font-size: 14px; color: #333; line-height: 1.2;");
+
+    // Add widgets to header
+    headerLayout->addWidget(logoLabel);
+    headerLayout->addWidget(logoTitleLabel);
+    headerLayout->addStretch();
 
 
+    // Card Widget
+    QWidget *card = new QWidget();
+    card->setObjectName("signupCard");
+    card->setFixedSize(500,500);
+
+    // Signup Card Layout
+    QVBoxLayout *cardLayout = new QVBoxLayout(card);
+    cardLayout->setObjectName("cardLayout");
+    cardLayout->setContentsMargins(40,40,40,40);
+    cardLayout->setSpacing(15);
+
+    signupTitle = new QLabel("Signup");
+    signupTitle->setObjectName("signupLabel");
+
+    // First Name Input Field
+    firstNameField = new QLineEdit();
+    firstNameField->setPlaceholderText("First Name");
+    firstNameField->setFixedHeight(45);
+
+    // Second Name Input Field
+    lastNameField = new QLineEdit();
+    lastNameField->setPlaceholderText("Second Name");
+    lastNameField->setFixedHeight(45);
+
+    // Horizontal Layout for Name Fields
+    QHBoxLayout *nameHLayout = new QHBoxLayout();
+    nameHLayout->addWidget(firstNameField);
+    nameHLayout->addWidget(lastNameField);
+
+    // Username Input Field
+    userNameField = new QLineEdit();
+    userNameField->setPlaceholderText("Username");
+    userNameField->setFixedHeight(45);
+
+    // Email Input Field
+    emailField = new QLineEdit();
+    emailField->setPlaceholderText("eg. example@address.com");
+    emailField->setFixedHeight(45);
+
+    // Mobile Number Input Field
+    mobileNoField = new QLineEdit();
+    mobileNoField->setFixedHeight(45);
+    mobileNoField->setMaxLength(11);
+    mobileNoField->setPlaceholderText("03xxxxxxxxx");
+
+    // Password Input Field
+    passField = new QLineEdit();
+    passField->setPlaceholderText("Create a Strong Password");
+    passField->setFixedHeight(45);
+
+    // Confirm Password Input Field
+    passConfirmField = new QLineEdit();
+    passConfirmField->setPlaceholderText("Re-type your password");
+    passConfirmField->setFixedHeight(45);
+
+    // Horizontal Layout for Password fields
+    QHBoxLayout *passHLayout = new QHBoxLayout();
+    passHLayout->addWidget(passField);
+    passHLayout->addWidget(passConfirmField);
+
+    // Signup Button
+    signupBtn = new QPushButton("Create Account");
+    signupBtn->setCursor(Qt::PointingHandCursor);
+    signupBtn->setFixedHeight(45);
+
+    // Login Link Button
+    loginLinkBtn = new QPushButton("Already have an account? Login");
+    loginLinkBtn->setCursor(Qt::PointingHandCursor);
+    loginLinkBtn->setObjectName("loginLinkBtn");
+
+    // Status Labels
+
+    // Warnings
+    statusLabel = new QLabel("");
+    statusLabel->setObjectName("statusLabel");
+    statusLabel->setFixedHeight(15);
+    statusLabel->hide();
+
+    // Name Status Label
+    nameStatusLabel = new QLabel("Names must be 2-30 letters. Avoid numbers or symbols at the start/end.");
+    nameStatusLabel->setObjectName("nameStatusLabel");
+    nameStatusLabel->setFixedHeight(15);
+    nameStatusLabel->hide();
+
+    // Username Status Label
+    usernameStatusLabel = new  QLabel("");
+    usernameStatusLabel->setObjectName("usernameStatusLabel");
+    usernameStatusLabel->setFixedHeight(15);
+    usernameStatusLabel->hide();
+
+    // Email Status Label
+    emailStatusLabel = new QLabel("");
+    emailStatusLabel->setObjectName("emailStatusLabel");
+    emailStatusLabel->setFixedHeight(15);
+    emailStatusLabel->hide();
+
+    // Mobile Number Status Label
+    mobileNoStatusLabel = new QLabel("Invalid Mobile Number.");
+    mobileNoStatusLabel->setObjectName("mobileNoStatusLabel");
+    mobileNoStatusLabel->setFixedHeight(15);
+    mobileNoStatusLabel->hide();
+
+    // Add Widgets to the card
+    cardLayout->addWidget(signupTitle);
+    cardLayout->addLayout(nameHLayout);
+    cardLayout->addWidget(nameStatusLabel);
+    cardLayout->addWidget(userNameField);
+    cardLayout->addWidget(usernameStatusLabel);
+    cardLayout->addWidget(emailField);
+    cardLayout->addWidget(emailStatusLabel);
+    cardLayout->addWidget(mobileNoField);
+    cardLayout->addWidget(mobileNoStatusLabel);
+    cardLayout->addLayout(passHLayout);
+
+    cardLayout->addSpacing(10);
+
+    cardLayout->addWidget(statusLabel);
+    cardLayout->addWidget(signupBtn);
+    cardLayout->addWidget(loginLinkBtn);
+    cardLayout->addStretch();
+    mainLayout->addLayout(headerLayout);
+
+    mainLayout->addStretch();
+    mainLayout->addWidget(card,0,Qt::AlignCenter);
+    mainLayout->addStretch();
+
+    // --Card Shadow Effect--
+    // Create the shadow effect
+    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect(this);
+    // 15-20 is usually the "sweet spot" for a soft modern look
+    shadow->setBlurRadius(30);
+    // Setting X to 0 and Y to 5 makes the shadow appear slightly below the card
+    shadow->setXOffset(-5);
+    shadow->setYOffset(7);
+    // Use a light transparent black (Alpha 50-80) so it's not too harsh
+    shadow->setColor(QColor(0, 0, 0, 50));
+    // Apply it to the card
+    card->setGraphicsEffect(shadow);
+
+    // StyleSheet
     this->setStyleSheet(
-        "#signupPage {background-color: #F5F7FA;}"
+        "#signupPage { background-color: #F5F7FA; }"
+        "#signupCard { background-color: #FFFFFF; border-radius: 20px;}"
+        "#signupLabel { font-size: 26px; font-weight: bold; color: #273671; }"
+        "#statusLabel,#nameStatusLabel, #usernameStatusLabel, #emailStatusLabel, #mobileNoStatusLabel {font-size: 13px; font-weight: normal;}"
+        "QLabel { color: #273671; font-weight: bold; font-size: 13px; }"
+        "QLineEdit { color: black; border: 1px solid #E6E9F4; border-radius: 8px; padding-left: 10px; background: #FFFFFF; }"
+        "QLineEdit:focus { border: 1.5px solid #2D60FF; }"
+        "QPushButton { background-color: #2D60FF; color: white; border-radius: 8px; font-weight: bold; font-size: 15px; }"
+        "QPushButton:hover { background-color: #1A4DDF; }"
+        "#loginLinkBtn { background: transparent; color: #2D60FF; border: none; font-size: 13px; font-weight: normal; }"
+        "#loginLinkBtn:hover { text-decoration: underline; }"
+        "QPushButton:pressed {background-color: #1a3ddf; margin-top: 2px;}"
         );
+
+
+    // Connections
+    connect(signupBtn, &QPushButton::clicked, this, &SignupWindow::handleSignup);
+    connect(loginLinkBtn, &QPushButton::clicked,[this](){
+
+        resetForm();
+        emit loginRequested();
+    });
+
+
+
+    //-------------------------------------------------------------------------------------
+    // 1. Create a map of Field -> Label
+    QMap<QLineEdit*, QLabel*> fieldToLabel;
+    fieldToLabel.insert(firstNameField, nameStatusLabel);
+    fieldToLabel.insert(lastNameField, nameStatusLabel); // Both name fields use one label
+    fieldToLabel.insert(userNameField, usernameStatusLabel);
+    fieldToLabel.insert(emailField, emailStatusLabel);
+    fieldToLabel.insert(mobileNoField, mobileNoStatusLabel);
+
+    // 2. Loop through the map to connect them all
+    for (auto it = fieldToLabel.begin(); it != fieldToLabel.end(); ++it) {
+        QLineEdit* field = it.key();
+        QLabel* label = it.value();
+
+        connect(field, &QLineEdit::textChanged, [this, field, label]() {
+            // Hide the specific label linked to this field
+            label->hide();
+
+            // Hide the general status label (the one at the bottom)
+            statusLabel->hide();
+
+            // Reset the red border of this specific field back to normal
+            field->setStyleSheet("");
+        });
+    }
+
+    // 3. Special case for passwords (since they share one statusLabel)
+    auto passReset = [this]() {
+        statusLabel->hide();
+        passField->setStyleSheet("");
+        passConfirmField->setStyleSheet("");
+    };
+    connect(passField, &QLineEdit::textChanged, passReset);
+    connect(passConfirmField, &QLineEdit::textChanged, passReset);
+
+    //-------------------------------------------------------------------------------------
+    // connect(mobileNoField,&QLineEdit::,[this](){
+    // });
+};
+
+void SignupWindow::handleSignup(){
+    // 1. Reset the labels to hide
+    statusLabel->hide();
+    nameStatusLabel->hide();
+    usernameStatusLabel->hide();
+    emailStatusLabel->hide();
+    mobileNoStatusLabel->hide();
+
+    // // 2. Reset all QLineEdit borders back to the original theme
+    // QList<QLineEdit*> fields = {
+    //     firstNameField, lastNameField, userNameField,
+    //     emailField, mobileNoField, passField, passConfirmField
+    // };
+
+    // for(QLineEdit* f : fields) {
+    //     // This restores the original border and ensures the :focus blue still works
+    //     f->setStyleSheet(
+    //         "QLineEdit { color: black; border: 1px solid #E6E9F4; border-radius: 8px; padding-left: 10px; background: #FFFFFF; }"
+    //         "QLineEdit:focus { border: 1.5px solid #2D60FF; }");
+    // }
+
+    QString firstName = firstNameField->text().trimmed();
+    QString lastName = lastNameField->text().trimmed();
+    QString userName = userNameField->text().trimmed();
+    QString email = emailField->text().trimmed();
+    QString mobileNo = mobileNoField->text().trimmed();
+    QString password = passField->text().trimmed();
+    QString confirmPass = passConfirmField->text().trimmed();
+
+    // Regex Expressions
+    // This forces 2-30 characters while allowing spaces, hyphens, and apostrophes
+    QRegularExpression nameRegex("^(?=.{2,30}$)[A-Za-z]+(?:[ '-][A-Za-z]+)*$");
+    QRegularExpression usernameRegex("^[a-zA-Z0-9_]{5,15}$");
+    QRegularExpression emailRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    QRegularExpression phoneRegex("^03[0-9]{9}$");
+    QRegularExpression passRegex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d\\W_]{7,20}$");
+
+    // Check for empty QString
+    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
+        mobileNo.isEmpty()  || password.isEmpty() || confirmPass.isEmpty())
+    {
+        statusLabel->setText("Fields cannot be empty.");
+        statusLabel->setStyleSheet("color: #E67E22;"); // Soft Warning Orange
+        statusLabel->show();
+        return;
+    }
+
+    // Check for valid firstname and lastname
+    if (!nameRegex.match(firstName).hasMatch())
+    {
+        nameStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        firstNameField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        nameStatusLabel->show();
+        return;
+    }
+
+    if (!nameRegex.match(lastName).hasMatch()){
+        nameStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        lastNameField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        nameStatusLabel->show();
+        return;
+    }
+
+    // --Username--
+    // Check for valid username
+    if (!usernameRegex.match(userName).hasMatch())
+    {
+        usernameStatusLabel->setText("Username must be 5-15 characters. Use only letters, numbers, or underscores.");
+        usernameStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        userNameField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        usernameStatusLabel->show();
+        return;
+    }
+    // Check for username exists
+    if (db.userExist(userName)){
+        usernameStatusLabel->setText("Username already taken. Try another one.");
+        usernameStatusLabel->setStyleSheet("color: #E74C3C;");
+
+        userNameField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        usernameStatusLabel->show();
+        return;
+    }
+    // --Email--
+    // Check for email exists
+    if (db.emailExist(email)){
+        emailStatusLabel->setText("Email already exist. Use another Email.");
+        emailStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        emailField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        emailStatusLabel->show();
+        return;
+    }
+    // Check for valid email
+    if (!emailRegex.match(email).hasMatch())
+    {   emailStatusLabel->setText("Invalid email format.");
+        emailStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        emailField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        emailStatusLabel->show();
+        return;
+    }
+
+    // --Mobile Number--
+    if (!phoneRegex.match(mobileNo).hasMatch()){
+        mobileNoStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        mobileNoField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        mobileNoStatusLabel->show();
+        return;
+    }
+
+    // --Password--
+    // 1. Check Format
+    if (!passRegex.match(password).hasMatch()) {
+        statusLabel->setText("Password must be 8-20 characters with Uppercase,Lowercase,and Number.");
+        statusLabel->setStyleSheet("color: #FF4D4D;");
+
+        passField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        statusLabel->show();
+        return;
+    }
+
+    // 2. Check Match
+    if (password != confirmPass) {
+        statusLabel->setText("Passwords do not match.");
+        statusLabel->setStyleSheet("color: #FF4D4D;");
+
+        passConfirmField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        statusLabel->show();
+        return;
+    }
+
+    if(db.registerUser(firstName,lastName,userName,email,password,mobileNo)){
+        qDebug() << "User Registered Successfully";
+        emit loginRequested();
+    }
+};
+
+void SignupWindow::resetForm(){
+
+    // 1. Group all fields
+    QList<QLineEdit*> fields = {
+      firstNameField, lastNameField, userNameField,
+      emailField, mobileNoField, passField, passConfirmField
+    };
+
+    // 2. Clear text and reset styles
+    for(QLineEdit* f : fields) {
+        f->clear();
+        f->setStyleSheet(""); // Clears red borders and restores :focus blue
+    }
+
+    // 3. Hide all potential error messages
+    statusLabel->hide();
+    nameStatusLabel->hide();
+    usernameStatusLabel->hide();
+    emailStatusLabel->hide();
+    mobileNoStatusLabel->hide();
+
 };

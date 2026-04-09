@@ -38,6 +38,7 @@ private:
     LoginWindow *loginPage;
     DashboardWindow *dashboardPage;
     SignupWindow *signupPage;
+    BankDB db;
 
 
     void showDashboard();

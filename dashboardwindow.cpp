@@ -14,6 +14,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
 
     this->setStyleSheet(
         "#dashboardPage { background-color: #FFFFFF;}"
+        "QLabel {color: black;}"
         );
 
     // 4. Set the window properties

@@ -7,7 +7,15 @@
 // --- Database Lifecycle ---
 
 bool BankDB::connectDB() {
-    // Add the QODBC driver for SQL Server
+    // 1. Check if the default connection already exists and is open
+    if (QSqlDatabase::contains("qt_sql_default_connection")) {
+        db = QSqlDatabase::database("qt_sql_default_connection");
+        if (db.isOpen()) {
+            return true; // Use the existing connection
+        }
+    }
+
+    // 2. If not, set up the QODBC connection for SQL Server
     db = QSqlDatabase::addDatabase("QODBC");
 
     QString connStr = "Driver={ODBC Driver 17 for SQL Server};"
@@ -19,18 +27,19 @@ bool BankDB::connectDB() {
 
     db.setDatabaseName(connStr);
 
+    // 3. Attempt to open
     if (db.open()) {
         QSqlQuery query;
-        query.exec("USE BankDB;"); // Force the connection to use your specific database
-        qDebug() << "Connected and switched to BankDB!";
-    }
+        // Optimization: Standard SQL Server connection strings usually
+        // land you in the right DB, but this "USE" command is a safe backup.
+        query.exec("USE BankDB;");
 
-    if (!db.open()) {
-        qDebug() << "Connection Error:" << db.lastError().text();
+        qDebug() << "Successfully connected to SQL Server (BankDB)";
+        return true;
+    } else {
+        qDebug() << "SQL Server Connection Error:" << db.lastError().text();
         return false;
     }
-    qDebug() << "Connection Successfull";
-    return true;
 }
 
 void BankDB::disconnectDB() {
@@ -78,6 +87,30 @@ int BankDB::loginUser(QString userName, QString password) {
 
     // 3. Return -1 if login fails (standard C++ "error" indicator)
     return -1;
+}
+
+bool BankDB::userExist(QString userName){
+    QSqlQuery query;
+    query.prepare("Select user_name FROM Users WHERE user_name = ?");
+    query.addBindValue(userName);
+
+    if (query.exec() && query.next()){
+        return true;
+    }
+
+    return false;
+}
+
+bool BankDB::emailExist(QString email){
+    QSqlQuery query;
+    query.prepare("SELECT email FROM Users WHERE email = ?");
+    query.addBindValue(email);
+
+    if (query.exec() && query.next()){
+        return true;
+    }
+
+    return false;
 }
 
 // --- Account Operations ---
