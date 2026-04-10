@@ -30,12 +30,21 @@ bool BankDB::connectDB() {
     // 3. Attempt to open
     if (db.open()) {
         QSqlQuery query;
-        // Optimization: Standard SQL Server connection strings usually
-        // land you in the right DB, but this "USE" command is a safe backup.
-        query.exec("USE BankDB;");
 
-        qDebug() << "Successfully connected to SQL Server (BankDB)";
-        return true;
+        // 1. First, tell SQL Server to use the specific database
+        if (!query.exec("USE BankDB;")) {
+            qDebug() << "Database Error: Could not switch to BankDB." << query.lastError().text();
+            return false;
+        }
+
+        // 2. Now that we are IN the BankDB, create the tables
+        if (initializeSchema()) {
+            qDebug() << "Successfully connected to SQL Server and verified schema.";
+            return true;
+        } else {
+            qDebug() << "Failed to initialize database schema.";
+            return false;
+        }
     } else {
         qDebug() << "SQL Server Connection Error:" << db.lastError().text();
         return false;
@@ -111,6 +120,29 @@ bool BankDB::emailExist(QString email){
     }
 
     return false;
+}
+
+bool BankDB::mobileNoExist(QString mobileNo){
+    QSqlQuery query;
+    query.prepare("SELECT mobile_no FROM Users WHERE mobile_no = ?");
+    query.addBindValue(mobileNo);
+
+    if (query.exec() && query.next()){
+        return true;
+    }
+
+    return false;
+}
+
+int BankDB::getUserid(QString username){
+    QSqlQuery query;
+    query.prepare("SELECT user_id FROM Users WHERE user_name = ?");
+    query.addBindValue(username);
+
+    if (query.exec() && query.next()){
+        return query.value(0).toInt();
+    }
+    return -1;
 }
 
 // --- Account Operations ---
@@ -226,4 +258,71 @@ void BankDB::getTransactionHistory(int accountId) {
             qDebug() << date << "|" << type << "| Amount:" << amt << "| Balance:" << bal << "| Note:" << rem;
         }
     }
+}
+
+bool BankDB::initializeSchema() {
+    QSqlQuery query;
+
+    // We use a list of queries to execute them one by one
+    QStringList schemaQueries;
+
+    // 1. Users Table
+    schemaQueries << R"(
+        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Users')
+        BEGIN
+            CREATE TABLE Users (
+                user_id INT PRIMARY KEY IDENTITY(1,1),
+                first_name NVARCHAR(30) NOT NULL,
+                last_name NVARCHAR(30) NOT NULL,
+                user_name NVARCHAR(15) UNIQUE NOT NULL,
+                email NVARCHAR(100) UNIQUE NOT NULL,
+                password NVARCHAR(64) NOT NULL,
+                mobile_no NVARCHAR(11) UNIQUE NOT NULL,
+                created_at DATETIME DEFAULT GETDATE()
+            );
+        END
+    )";
+
+    // 2. Accounts Table
+    schemaQueries << R"(
+        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Accounts')
+        BEGIN
+            CREATE TABLE Accounts (
+                account_id INT PRIMARY KEY IDENTITY(1000,1),
+                user_id INT NOT NULL,
+                balance DECIMAL(18, 2) DEFAULT 0.00,
+                currency NVARCHAR(10) DEFAULT 'PKR',
+                CONSTRAINT FK_UserAccount FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+            );
+        END
+    )";
+
+    // 3. Transactions Table
+    schemaQueries << R"(
+        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Transactions')
+        BEGIN
+            CREATE TABLE Transactions (
+                transaction_id INT PRIMARY KEY IDENTITY(1,1),
+                account_id INT NOT NULL,
+                transaction_type NVARCHAR(20) NOT NULL,
+                amount DECIMAL(18, 2) NOT NULL,
+                balance_after DECIMAL(18, 2) NOT NULL,
+                remarks NVARCHAR(255),
+                transaction_date DATETIME DEFAULT GETDATE(),
+                CONSTRAINT FK_AccountTransaction FOREIGN KEY (account_id) REFERENCES Accounts(account_id) ON DELETE CASCADE
+            );
+        END
+    )";
+
+    // Execute each block
+    for (const QString &queryString : std::as_const(schemaQueries)) {
+        if (!query.exec(queryString)) {
+            qDebug() << "Database Schema Error:" << query.lastError().text();
+            qDebug() << "Query Context:" << queryString.left(50) << "...";
+            return false;
+        }
+    }
+
+    qDebug() << "Database tables validated/created successfully.";
+    return true;
 }

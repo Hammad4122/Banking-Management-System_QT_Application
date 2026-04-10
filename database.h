@@ -15,6 +15,7 @@ public:
     // --- Database Lifecycle ---
     bool connectDB();
     void disconnectDB();
+    bool initializeSchema();
 
     // --- User & Authentication ---
     // Matches 'Users' table
@@ -23,11 +24,13 @@ public:
     int loginUser(QString userName, QString password);
     bool userExist(QString userName);
     bool emailExist(QString email);
+    bool mobileNoExist(QString mobileNo);
 
     // --- Account Operations ---
     // Matches 'Accounts' table
     bool createAccount(int userId, QString currency = "PKR");
     double getBalance(int accountId);
+    int getUserid(QString username);
 
     // --- Financial Transactions ---
     // Matches 'Transactions' table

@@ -6,6 +6,7 @@
 #include <QLineEdit>
 #include <QGraphicsDropShadowEffect>
 #include <QRegularExpression>
+#include <QMessageBox>
 
 SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     this->setObjectName("signupPage");
@@ -133,9 +134,9 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     emailStatusLabel->hide();
 
     // Mobile Number Status Label
-    mobileNoStatusLabel = new QLabel("Invalid Mobile Number.");
+    mobileNoStatusLabel = new QLabel("");
     mobileNoStatusLabel->setObjectName("mobileNoStatusLabel");
-    mobileNoStatusLabel->setFixedHeight(15);
+    mobileNoStatusLabel->setFixedHeight(30);
     mobileNoStatusLabel->hide();
 
     // Add Widgets to the card
@@ -321,6 +322,7 @@ void SignupWindow::handleSignup(){
         usernameStatusLabel->show();
         return;
     }
+
     // Check for username exists
     if (db.userExist(userName)){
         usernameStatusLabel->setText("Username already taken. Try another one.");
@@ -331,17 +333,8 @@ void SignupWindow::handleSignup(){
         usernameStatusLabel->show();
         return;
     }
+
     // --Email--
-    // Check for email exists
-    if (db.emailExist(email)){
-        emailStatusLabel->setText("Email already exist. Use another Email.");
-        emailStatusLabel->setStyleSheet("color: #FF4D4D;");
-
-        emailField->setStyleSheet("border: 1.5px solid #FF4D4D;");
-
-        emailStatusLabel->show();
-        return;
-    }
     // Check for valid email
     if (!emailRegex.match(email).hasMatch())
     {   emailStatusLabel->setText("Invalid email format.");
@@ -353,10 +346,30 @@ void SignupWindow::handleSignup(){
         return;
     }
 
+    // Check for email exists
+    if (db.emailExist(email)){
+        emailStatusLabel->setText("Email already exist.Please login or use a different email.");
+        emailStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        emailField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        emailStatusLabel->show();
+        return;
+    }
+
     // --Mobile Number--
     if (!phoneRegex.match(mobileNo).hasMatch()){
         mobileNoStatusLabel->setStyleSheet("color: #FF4D4D;");
+        mobileNoStatusLabel->setText("Invalid Mobile Number.");
+        mobileNoField->setStyleSheet("border: 1.5px solid #FF4D4D;");
 
+        mobileNoStatusLabel->show();
+        return;
+    }
+    // Check for Mobile Number exist
+    if (db.mobileNoExist(mobileNo)){
+        mobileNoStatusLabel->setStyleSheet("color: #FF4D4D;");
+        mobileNoStatusLabel->setText("This mobile number is already registered. Please login or use a different\n number.");
         mobileNoField->setStyleSheet("border: 1.5px solid #FF4D4D;");
 
         mobileNoStatusLabel->show();
@@ -387,8 +400,22 @@ void SignupWindow::handleSignup(){
     }
 
     if(db.registerUser(firstName,lastName,userName,email,password,mobileNo)){
-        qDebug() << "User Registered Successfully";
-        emit loginRequested();
+        int id = db.getUserid(userName);
+        if (id != -1){
+            db.createAccount(id,"PKR");
+
+            QMessageBox::information(this, "Signup", "Account Created Successfully");
+            qDebug() << "User Registered Successfully";
+
+            resetForm();
+            emit loginRequested();
+        }
+        else {
+            qDebug() << "Critical Error: Could not create Account for UserID:" << id;
+        }
+    }
+    else {
+        qDebug() << "User couldn't be registered";
     }
 };
 

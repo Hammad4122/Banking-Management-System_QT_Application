@@ -129,6 +129,10 @@ LoginWindow::LoginWindow(QWidget *parent): BasePage(parent)
         statusLabel->clear();
         statusLabel->hide();
     });
+    connect(passField, &QLineEdit::textChanged, [this]() {
+        statusLabel->clear();
+        statusLabel->hide();
+    });
 }
 
 void LoginWindow::handleLogin() {
