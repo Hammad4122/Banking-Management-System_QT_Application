@@ -36,7 +36,7 @@ LoginWindow::LoginWindow(QWidget *parent): BasePage(parent)
     themeToggleBtn = new QPushButton("🌙");
     themeToggleBtn->setFixedSize(40,40);
     themeToggleBtn->setObjectName("themeToggleBtn");
-    // isDarkMode = false;
+    themeToggleBtn->setCursor(Qt::PointingHandCursor);
 
     // 2. Add widgets to the header layout
     headerLayout->addWidget(logoLabel,0,Qt::AlignLeft);       //Goes to left
@@ -51,7 +51,6 @@ LoginWindow::LoginWindow(QWidget *parent): BasePage(parent)
     QVBoxLayout *cardLayout = new QVBoxLayout(card);
     cardLayout->setContentsMargins(40,40,40,40);
     cardLayout->setSpacing(15);
-
 
     // Title Label
     titleLabel = new QLabel("Welcome Back");
@@ -112,22 +111,6 @@ LoginWindow::LoginWindow(QWidget *parent): BasePage(parent)
     shadow->setColor(QColor(0, 0, 0, 50));
     // Apply it to the card
     card->setGraphicsEffect(shadow);
-
-    // STYLING
-    // this->setStyleSheet(
-    //     "#loginPage { background-color: #F5F7FA; }"
-    //     "#loginCard { background-color: #FFFFFF; border-radius: 20px;}"
-    //     "#loginTitle { font-size: 26px; font-weight: bold; color: #273671; }"
-    //     "#statusLabel {font-size: 13px; font-weight: normal;}"
-    //     "QLabel { color: #273671; font-weight: bold; font-size: 13px; }"
-    //     "QLineEdit { color: black; border: 1px solid #E6E9F4; border-radius: 8px; padding-left: 10px; background: #FFFFFF; }"
-    //     "QLineEdit:focus { border: 1.5px solid #2D60FF; }"
-    //     "QPushButton { background-color: #2D60FF; color: white; border-radius: 8px; font-weight: bold; font-size: 15px;}"
-    //     "QPushButton:hover { background-color: #1A4DDF; }"
-    //     "#linkBtn { background: transparent; color: #2D60FF; border: none; font-size: 13px; font-weight: normal; }"
-    //     "#linkBtn:hover { text-decoration: underline; }"
-    //     "QPushButton:pressed {background-color: #1a3ddf; margin-top: 2px;}"
-    //     );
 
     // Connections
     connect(loginBtn, &QPushButton::clicked, this, &LoginWindow::handleLogin);

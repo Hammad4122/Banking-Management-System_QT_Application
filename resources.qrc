@@ -2,5 +2,10 @@
     <qresource prefix="/resources">
         <file>bank_pic.png</file>
         <file>bank_pic_green.png</file>
+        <file>credit-card_blue.png</file>
+        <file>credit-card_green.png</file>
+        <file>my_pic.png</file>
+        <file>setting_icon.png</file>
+        <file>notification.png</file>
     </qresource>
 </RCC>

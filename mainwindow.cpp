@@ -11,6 +11,7 @@
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QDebug>
+#include <QMessageBox>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -39,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     // dashboardPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // 4. Start with Login
-    stackedWidget->setCurrentIndex(0);
+    stackedWidget->setCurrentIndex(0);  // Change back to 0
 
     connect(signupPage, &SignupWindow::loginRequested,[this](){
         stackedWidget->setCurrentIndex(0);
@@ -50,6 +51,11 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(loginPage, &LoginWindow::loginSuccessful, [this]() {
         stackedWidget->setCurrentIndex(2); // Switch to Dashboard
+    });
+    connect(dashboardPage, &DashboardWindow::logoutRequested,[this](){
+        loginPage->resetForm();
+        stackedWidget->setCurrentIndex(0);
+        QMessageBox::information(this,"Logout","Logged out successfully");
     });
 
     // Theme Connections

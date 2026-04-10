@@ -1,17 +1,17 @@
 #include "basepage.h"
 #include <QStyleOption>
 #include <QPainter>
-
-// BasePage.cpp
 #include "basepage.h"
 
-// Initialize the static bool
+// BasePage.cpp
+
+// Initialized the static bool
 bool BasePage::isDarkMode = false;
 
-// Initialize the Light Blue Theme
+// The Light Blue Theme
 const QString BasePage::lightBlueTheme = R"(
     /* Main Backgrounds */
-    #loginPage, #signupPage {
+    #loginPage, #signupPage, #dashboardPage {
         background-color: #F5F7FA;
     }
 
@@ -27,6 +27,53 @@ const QString BasePage::lightBlueTheme = R"(
         font-weight: bold;
         color: #273671;
     }
+    /* Dashboard */
+
+    /* Dashboard Header */
+    #dashHeader {background-color: #FFFFFF;}
+
+    /* Dashboard Labels */
+    #dashTitleLabel {font-size: 16px; color: #343C6A;}
+
+    /* Styling for the circular settings button */
+    #settingBtn{
+        background-color: #F5F7FA;
+        border: none;
+        border-radius: 17px;       /* Half of the 40px width/height to make it a circle */
+
+        /* Path to icon in resources */
+        qproperty-icon: url(":/resources/setting_icon.png");
+        qproperty-iconSize: 22px 22px; /* Size of the gear inside the circle */
+    }
+    #notificationBtn{
+        background-color: #F5F7FA;
+        border: none;
+        border-radius: 17px;       /* Half of the 40px width/height to make it a circle */
+
+        /* Path to icon in resources */
+        qproperty-icon: url(":/resources/notification.png");
+        qproperty-iconSize: 22px 22px; /* Size of the notification icon inside the circle */
+    }
+    /* Add a hover effect for a professional feel */
+    #settingBtn:hover ,#notificationBtn:hover {
+        background-color: #F2F2F2;
+    }
+    #settingBtn:pressed, #notificationBtn:pressed {
+        background-color: #C2C2C2;
+        margin-top: 0px;
+    }
+
+    /* Login Button */
+    #logoutBtn {
+        background-color: #2D60FF;
+        color: white;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 13px;
+        padding: 2px;
+    }
+
+    #logoutBtn:pressed {background-color: #1a3ddf; margin-top: 0px;}
 
     /* Global Label Styles */
     QLabel {
@@ -90,7 +137,6 @@ const QString BasePage::lightBlueTheme = R"(
     }
 
     #logoTitleLabel {font-size: 14px; color: #333; line-height: 1.2;}
-
     #logoLabel {
         border-image: url(:/resources/bank_pic.png);" // Blue version
         min-width: 40px; min-height: 40px;
@@ -98,7 +144,7 @@ const QString BasePage::lightBlueTheme = R"(
     }
 )";
 
-// Initialize the Black & Emerald Theme
+// The Black & Emerald Theme
 const QString BasePage::darkEmeraldTheme = R"(
     /* Main Backgrounds */
     #loginPage, #signupPage {
@@ -188,11 +234,8 @@ BasePage::BasePage(QWidget *parent) : QWidget(parent) {
     if (!db.connectDB()) {
         qDebug() << "BasePage: Failed to connect to Database";
     }
-    this->setStyleSheet(lightBlueTheme);
-    // themeToggleBtn = new QPushButton("🌙",this);
-    // themeToggleBtn->setFixedSize(40,40);
-    // themeToggleBtn->move(1100,75);
 
+    this->setStyleSheet(lightBlueTheme);    // Default Theme
 
 }
 
@@ -210,18 +253,20 @@ void BasePage::paintEvent(QPaintEvent *event) {
 }
 
 void BasePage::applyCurrentTheme(){
-    qDebug() << "Hello";
+
     if (isDarkMode){
-        this->setStyleSheet(darkEmeraldTheme);
+        this->setStyleSheet(darkEmeraldTheme); // Apply the Dark Emerald Theme
     }
     else {
-        this->setStyleSheet(lightBlueTheme);
+        this->setStyleSheet(lightBlueTheme);   // Apply the Light Blue Theme
     }
+
 }
 
 void BasePage::updateToggleIcon(){
+    // 1. Swap Toggle Button Icon
     if (themeToggleBtn){
-        themeToggleBtn->setText(isDarkMode ? "☀️" : "🌙");
+        themeToggleBtn->setText(isDarkMode ? "☀️" : "🌙"); // On: ☀️ Off: 🌙
     }
     // 2. MANUALLY swap the icon pixmap
     if (logoLabel) {

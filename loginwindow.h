@@ -13,6 +13,7 @@ class LoginWindow : public BasePage
     Q_OBJECT
 public:
     explicit LoginWindow(QWidget *parent = nullptr);
+    void resetForm();
 
 private slots:
     void handleLogin();
@@ -30,7 +31,6 @@ private:
     QPushButton *loginBtn;
     QPushButton *signupLink;
 
-    void resetForm();
 
 };
 

@@ -10,8 +10,16 @@ class DashboardWindow: public BasePage
 public:
     explicit DashboardWindow(QWidget *parent = nullptr);
 private slots:
+
+signals:
+    void logoutRequested();
 private:
-    QLabel *label;
+    QLabel *dashTitleLabel;
+    QLabel *dashTitleLogoLabel;
+    QLabel *userImgLabel;
+    QPushButton *settingBtn;
+    QPushButton *notificationBtn;
+    QPushButton *logoutBtn;
 };
 
 #endif // DASHBOARD_H
