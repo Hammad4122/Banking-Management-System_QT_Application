@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>bank_pic.png</file>
+        <file>bank_pic_green.png</file>
+    </qresource>
+</RCC>

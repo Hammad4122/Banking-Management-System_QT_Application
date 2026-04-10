@@ -51,7 +51,29 @@ MainWindow::MainWindow(QWidget *parent)
     connect(loginPage, &LoginWindow::loginSuccessful, [this]() {
         stackedWidget->setCurrentIndex(2); // Switch to Dashboard
     });
-}
+
+    // Theme Connections
+    connect(loginPage, &LoginWindow::themeChangeRequested, [this](){
+        handleTheme();
+    });
+    connect(signupPage, &SignupWindow::themeChangeRequested, [this](){
+        handleTheme();
+    });
+};
+
+void MainWindow::handleTheme(){
+    // Call the static setter for isDarkMode
+    BasePage::toggleGlobalTheme();
+
+    loginPage->applyCurrentTheme();
+    signupPage->applyCurrentTheme();
+    dashboardPage->applyCurrentTheme();
+
+    loginPage->updateToggleIcon();
+    signupPage->updateToggleIcon();
+};
+
+
 
 //     QWidget *centeral = new QWidget(this);
 //     setCentralWidget(centeral);

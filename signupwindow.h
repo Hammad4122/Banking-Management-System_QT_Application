@@ -5,7 +5,6 @@
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
-#include "database.h"
 
 class SignupWindow: public BasePage
 {
@@ -16,8 +15,8 @@ private slots:
     void handleSignup();
 signals:
     void loginRequested();
+    void themeChangeRequested();
 private:
-    QLabel *logoLabel;
     QLabel *logoTitleLabel;
     QLabel *signupTitle;
     QLineEdit *firstNameField;

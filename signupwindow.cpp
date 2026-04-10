@@ -18,9 +18,10 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     mainLayout->setAlignment(Qt::AlignCenter);
 
     // Create the label for the logo
-    logoLabel = new QLabel();
-    QPixmap logoPixmap("C:\\Bahria University\\2nd Semester\\Projects\\OOPs_Lab\\BankingManagementSystem_Project\\bank_pic.png"); // Path from your .qrc
+    logoLabel = new QLabel(this);
+    QPixmap logoPixmap(":/resources/bank_pic.png"); // Path from your .qrc
     logoLabel->setPixmap(logoPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setObjectName("logoLabel");
 
     // Header Layout
     QHBoxLayout *headerLayout = new QHBoxLayout();
@@ -29,13 +30,19 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
 
     // Logo Title Label
     logoTitleLabel = new QLabel("<b>Banking</b><br>Management System", this);
-    logoTitleLabel->setStyleSheet("font-size: 14px; color: #333; line-height: 1.2;");
+    logoTitleLabel->setObjectName("logoTitleLabel");
 
-    // Add widgets to header
-    headerLayout->addWidget(logoLabel);
-    headerLayout->addWidget(logoTitleLabel);
-    headerLayout->addStretch();
+    // Theme Toggle Button
+    themeToggleBtn = new QPushButton("🌙");
+    themeToggleBtn->setFixedSize(40,40);
+    themeToggleBtn->setObjectName("themeToggleBtn");
+    // isDarkMode = false;
 
+    // 2. Add widgets to the header layout
+    headerLayout->addWidget(logoLabel,0,Qt::AlignLeft);       //Goes to left
+    headerLayout->addWidget(logoTitleLabel,0,Qt::AlignLeft); // Goes to left
+    headerLayout->addWidget(themeToggleBtn,1,Qt::AlignRight);// Goes to right
+    // headerLayout->addStretch();// Pushes everything to the left
 
     // Card Widget
     QWidget *card = new QWidget();
@@ -177,31 +184,113 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     card->setGraphicsEffect(shadow);
 
     // StyleSheet
-    this->setStyleSheet(
-        "#signupPage { background-color: #F5F7FA; }"
-        "#signupCard { background-color: #FFFFFF; border-radius: 20px;}"
-        "#signupLabel { font-size: 26px; font-weight: bold; color: #273671; }"
-        "#statusLabel,#nameStatusLabel, #usernameStatusLabel, #emailStatusLabel, #mobileNoStatusLabel {font-size: 13px; font-weight: normal;}"
-        "QLabel { color: #273671; font-weight: bold; font-size: 13px; }"
-        "QLineEdit { color: black; border: 1px solid #E6E9F4; border-radius: 8px; padding-left: 10px; background: #FFFFFF; }"
-        "QLineEdit:focus { border: 1.5px solid #2D60FF; }"
-        "QPushButton { background-color: #2D60FF; color: white; border-radius: 8px; font-weight: bold; font-size: 15px; }"
-        "QPushButton:hover { background-color: #1A4DDF; }"
-        "#loginLinkBtn { background: transparent; color: #2D60FF; border: none; font-size: 13px; font-weight: normal; }"
-        "#loginLinkBtn:hover { text-decoration: underline; }"
-        "QPushButton:pressed {background-color: #1a3ddf; margin-top: 2px;}"
-        );
+    // this->setStyleSheet(
+    //     "#signupPage { background-color: #F5F7FA; }"
+    //     "#signupCard { background-color: #FFFFFF; border-radius: 20px;}"
+    //     "#signupLabel { font-size: 26px; font-weight: bold; color: #273671; }"
+    //     "#statusLabel,#nameStatusLabel, #usernameStatusLabel, #emailStatusLabel, #mobileNoStatusLabel {font-size: 13px; font-weight: normal;}"
+    //     "QLabel { color: #273671; font-weight: bold; font-size: 13px; }"
+    //     "QLineEdit { color: black; border: 1px solid #E6E9F4; border-radius: 8px; padding-left: 10px; background: #FFFFFF; }"
+    //     "QLineEdit:focus { border: 1.5px solid #2D60FF; }"
+    //     "QPushButton { background-color: #2D60FF; color: white; border-radius: 8px; font-weight: bold; font-size: 15px; }"
+    //     "QPushButton:hover { background-color: #1A4DDF; }"
+    //     "#loginLinkBtn { background: transparent; color: #2D60FF; border: none; font-size: 13px; font-weight: normal; }"
+    //     "#loginLinkBtn:hover { text-decoration: underline; }"
+    //     "QPushButton:pressed {background-color: #1a3ddf; margin-top: 2px;}"
+    //     );
+//     BLACK AND EMERALD GREEN THEME
+//     this->setStyleSheet(R"(
+//     /* Main Page Background */
+//     #signupPage {
+//         background-color: #0B0E11;
+//     }
+
+//     /* The Central Card */
+//     #signupCard {
+//         background-color: #161A1E;
+//         border: 1px solid #23282E;
+//         border-radius: 20px;
+//     }
+
+//     /* Headers and Labels */
+//     #signupLabel {
+//         font-size: 26px;
+//         font-weight: bold;
+//         color: #50C878; /* Emerald Green */
+//     }
+
+//     QLabel {
+//         color: #E0E0E0; /* Off-white for readability */
+//         font-weight: bold;
+//         font-size: 13px;
+//     }
+
+//     /* Status/Error Labels */
+//     #statusLabel, #nameStatusLabel, #usernameStatusLabel,
+//     #emailStatusLabel, #mobileNoStatusLabel {
+//         font-size: 12px;
+//         font-weight: normal;
+//         color: #FF4D4D; /* Alert Red */
+//     }
+
+//     /* Input Fields */
+//     QLineEdit {
+//         color: #FFFFFF;
+//         border: 1px solid #2C343C;
+//         border-radius: 8px;
+//         padding-left: 10px;
+//         background: #1C2229;
+//         height: 35px;
+//     }
+
+//     QLineEdit:focus {
+//         border: 1.5px solid #50C878; /* Emerald focus ring */
+//     }
+
+//     /* Primary Action Button */
+//     QPushButton {
+//         background-color: #50C878;
+//         color: #0B0E11; /* Dark text on green button */
+//         border-radius: 8px;
+//         font-weight: bold;
+//         font-size: 15px;
+//         padding: 10px;
+//     }
+
+//     QPushButton:hover {
+//         background-color: #45AF67;
+//     }
+
+//     QPushButton:pressed {
+//         background-color: #3B9658;
+//         margin-top: 2px;
+//     }
+
+//     /* Link Button (Login Link) */
+//     #loginLinkBtn {
+//         background: transparent;
+//         color: #50C878;
+//         border: none;
+//         font-size: 13px;
+//         font-weight: normal;
+//     }
+
+//     #loginLinkBtn:hover {
+//         text-decoration: underline;
+//         color: #70DB93;
+//     }
+// )");
 
 
     // Connections
     connect(signupBtn, &QPushButton::clicked, this, &SignupWindow::handleSignup);
     connect(loginLinkBtn, &QPushButton::clicked,[this](){
-
         resetForm();
         emit loginRequested();
     });
-
-
+    connect(themeToggleBtn, &QPushButton::clicked,[this](){
+        emit themeChangeRequested();
+    });
 
     //-------------------------------------------------------------------------------------
     // 1. Create a map of Field -> Label

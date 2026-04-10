@@ -26,6 +26,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     void updateButtonStyles(QPushButton*);
+    void handleTheme();
+
     ~MainWindow();
 
 private:
@@ -46,5 +48,6 @@ private:
     void showAccounts();
     void clearLayout(QLayout *layout);
 
+    // virtual void changeTheme(bool darkModeEnabled);
 };
 #endif // MAINWINDOW_H

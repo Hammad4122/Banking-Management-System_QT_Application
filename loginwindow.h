@@ -20,10 +20,10 @@ private slots:
 signals:
     void loginSuccessful();
     void signupRequested();
+    void themeChangeRequested();
 private:
     QLabel *titleLabel;
     QLabel *statusLabel;
-    QLabel *logoLabel;
     QLabel *logoTitleLabel;
     QLineEdit *userField;
     QLineEdit *passField;
