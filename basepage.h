@@ -14,7 +14,7 @@ public:
 
     void static toggleGlobalTheme();
     void applyCurrentTheme();
-    void updateToggleIcon();
+    void updateIcons();
 protected:
     BankDB db;
     // Static strings so they are shared by all child classes
@@ -26,7 +26,8 @@ protected:
     QPushButton* themeToggleBtn;
     static bool isDarkMode;
 
-    QLabel* logoLabel = nullptr;
+    QLabel* bankLogoLabel = nullptr;
+    QLabel* creditLogoLabel = nullptr;
 };
 
 #endif // BASEPAGE_H

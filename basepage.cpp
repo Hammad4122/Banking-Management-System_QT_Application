@@ -137,11 +137,7 @@ const QString BasePage::lightBlueTheme = R"(
     }
 
     #logoTitleLabel {font-size: 14px; color: #333; line-height: 1.2;}
-    #logoLabel {
-        border-image: url(:/resources/bank_pic.png);" // Blue version
-        min-width: 40px; min-height: 40px;
-        max-width: 40px; max-height: 40px;
-    }
+
 )";
 
 // The Black & Emerald Theme
@@ -260,24 +256,35 @@ void BasePage::applyCurrentTheme(){
     else {
         this->setStyleSheet(lightBlueTheme);   // Apply the Light Blue Theme
     }
-
+    updateIcons();
 }
 
-void BasePage::updateToggleIcon(){
+void BasePage::updateIcons(){
     // 1. Swap Toggle Button Icon
     if (themeToggleBtn){
         themeToggleBtn->setText(isDarkMode ? "☀️" : "🌙"); // On: ☀️ Off: 🌙
     }
     // 2. MANUALLY swap the icon pixmap
-    if (logoLabel) {
-        QString iconPath = isDarkMode ? ":/resources/bank_pic_green.png"
-                                      : ":/resources/bank_pic.png";
+    if (bankLogoLabel) {
+        QString bankIconPath = isDarkMode ? ":/resources/bank_pic_green.png"
+                                          : ":/resources/bank_pic.png";
 
-        QPixmap pix(iconPath);
-        if (!pix.isNull()) {
-            logoLabel->setPixmap(pix.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        QPixmap bankIconPix(bankIconPath);
+        if (!bankIconPix.isNull()) {
+            bankLogoLabel->setPixmap(bankIconPix.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         } else {
-            qDebug() << "Failed to load icon from:" << iconPath;
+            qDebug() << "Failed to load icon from:" << bankIconPath;
+        }
+    }
+
+    if (creditLogoLabel){
+        QString creditIconPath = isDarkMode ? ":/resources/credit-card_green.png"
+                                            : ":/resources/credit-card_blue.png";
+        QPixmap creditIconPix(creditIconPath);
+        if (!creditIconPix.isNull()) {
+            creditLogoLabel->setPixmap(creditIconPix.scaled(40,40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        } else {
+            qDebug() << "Failed to load icon from:" << creditIconPath;
         }
     }
 }

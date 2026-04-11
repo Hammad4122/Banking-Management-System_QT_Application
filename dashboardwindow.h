@@ -13,10 +13,11 @@ private slots:
 
 signals:
     void logoutRequested();
+    void themeChangeRequested();
 private:
     QLabel *dashTitleLabel;
-    QLabel *dashTitleLogoLabel;
     QLabel *userImgLabel;
+    QLabel *greetUser;
     QPushButton *settingBtn;
     QPushButton *notificationBtn;
     QPushButton *logoutBtn;

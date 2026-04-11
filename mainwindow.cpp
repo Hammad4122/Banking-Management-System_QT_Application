@@ -65,6 +65,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(signupPage, &SignupWindow::themeChangeRequested, [this](){
         handleTheme();
     });
+    connect(dashboardPage, &DashboardWindow::themeChangeRequested,[this](){
+        handleTheme();
+    });
 };
 
 void MainWindow::handleTheme(){
@@ -74,9 +77,6 @@ void MainWindow::handleTheme(){
     loginPage->applyCurrentTheme();
     signupPage->applyCurrentTheme();
     dashboardPage->applyCurrentTheme();
-
-    loginPage->updateToggleIcon();
-    signupPage->updateToggleIcon();
 };
 
 

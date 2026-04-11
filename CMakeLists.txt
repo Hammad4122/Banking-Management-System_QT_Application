@@ -33,6 +33,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         dashboardwindow.h dashboardwindow.cpp
         basepage.h basepage.cpp
         resources.qrc
+        settingwindow.h settingwindow.cpp
     )
 else()
     if(ANDROID)

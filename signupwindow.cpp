@@ -18,10 +18,10 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     mainLayout->setAlignment(Qt::AlignCenter);
 
     // Create the label for the logo
-    logoLabel = new QLabel(this);
+    bankLogoLabel = new QLabel(this);
     QPixmap logoPixmap(":/resources/bank_pic.png"); // Path from your .qrc
-    logoLabel->setPixmap(logoPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    logoLabel->setObjectName("logoLabel");
+    bankLogoLabel->setPixmap(logoPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    bankLogoLabel->setObjectName("logoLabel");
 
     // Header Layout
     QHBoxLayout *headerLayout = new QHBoxLayout();
@@ -39,7 +39,7 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     themeToggleBtn->setCursor(Qt::PointingHandCursor);
 
     // 2. Add widgets to the header layout
-    headerLayout->addWidget(logoLabel,0,Qt::AlignLeft);       //Goes to left
+    headerLayout->addWidget(bankLogoLabel,0,Qt::AlignLeft);       //Goes to left
     headerLayout->addWidget(logoTitleLabel,0,Qt::AlignLeft); // Goes to left
     headerLayout->addWidget(themeToggleBtn,1,Qt::AlignRight);// Goes to right
 

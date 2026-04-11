@@ -21,15 +21,21 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     headerLayout->addSpacing(5);
     headerLayout->setContentsMargins(0,0,0,0);
 
-    dashTitleLogoLabel = new QLabel("");
+    creditLogoLabel = new QLabel(this);
     QPixmap creditPixmap(":/resources/credit-card_blue.png"); // Path from your .qrc
-    dashTitleLogoLabel->setPixmap(creditPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    creditLogoLabel->setPixmap(creditPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
     dashTitleLabel = new QLabel("BankDash.");
     dashTitleLabel->setObjectName("dashTitleLabel");
 
+    // Theme Toggle Button
+    themeToggleBtn = new QPushButton("🌙");
+    themeToggleBtn->setFixedSize(40,40);
+    themeToggleBtn->setObjectName("themeToggleBtn");
+    themeToggleBtn->setCursor(Qt::PointingHandCursor);
+
     // -- User Image --
-    userImgLabel = new QLabel("");
+    userImgLabel = new QLabel();
     // 1. Load your pixmap
     QPixmap originalPixmap(":/resources/my_pic.png");
     int size = 50; // Your desired size
@@ -70,9 +76,11 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     logoutBtn->setCursor(Qt::PointingHandCursor);
 
     // Header Layout
-    headerLayout->addWidget(dashTitleLogoLabel,0,Qt::AlignLeft);
+    headerLayout->addWidget(creditLogoLabel,0,Qt::AlignLeft);
     headerLayout->addWidget(dashTitleLabel,0,Qt::AlignLeft);
     headerLayout->addStretch();
+    headerLayout->addWidget(themeToggleBtn,-1,Qt::AlignRight);
+    headerLayout->addSpacing(10);
     headerLayout->addWidget(logoutBtn,-1,Qt::AlignRight);
     headerLayout->addSpacing(10);
     headerLayout->addWidget(settingBtn,-1,Qt::AlignRight);
@@ -85,10 +93,12 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     mainLayout->addWidget(header);
     mainLayout->addStretch();
 
+    // Buttons Connection
     connect(logoutBtn, &QPushButton::clicked, [this](){
         emit logoutRequested();
     });
+    connect(themeToggleBtn, &QPushButton::clicked,[this](){
+        emit themeChangeRequested();
+    });
 
-    // 4. Set the window properties
-    setAttribute(Qt::WA_DeleteOnClose);
 }
