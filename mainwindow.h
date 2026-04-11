@@ -41,12 +41,14 @@ private:
     DashboardWindow *dashboardPage;
     SignupWindow *signupPage;
     BankDB db;
+    UserSessionHandler* currentSession = nullptr;
 
 
     void showDashboard();
     void showTransactions();
     void showAccounts();
     void clearLayout(QLayout *layout);
+    void onUserLoggedIn(UserSessionHandler* session);
 
     // virtual void changeTheme(bool darkModeEnabled);
 };

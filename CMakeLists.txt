@@ -34,6 +34,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         basepage.h basepage.cpp
         resources.qrc
         settingwindow.h settingwindow.cpp
+        usersessionhandler.h usersessionhandler.cpp
     )
 else()
     if(ANDROID)

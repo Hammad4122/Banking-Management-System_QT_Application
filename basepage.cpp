@@ -138,12 +138,14 @@ const QString BasePage::lightBlueTheme = R"(
 
     #logoTitleLabel {font-size: 14px; color: #333; line-height: 1.2;}
 
+    #userGreetingLabel {font-size: 18px;}
+
 )";
 
 // The Black & Emerald Theme
 const QString BasePage::darkEmeraldTheme = R"(
     /* Main Backgrounds */
-    #loginPage, #signupPage {
+    #loginPage, #signupPage, #dashboardPage {
         background-color: #0B0E11;
     }
 
@@ -223,6 +225,9 @@ const QString BasePage::darkEmeraldTheme = R"(
         color: #70DB93;
     }
     #logoTitleLabel {font-size: 14px; color: #caccca; line-height: 1.2;}
+
+    #dashHeader {background-color: #161A1E;}
+
 
 )";
 

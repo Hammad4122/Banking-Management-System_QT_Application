@@ -45,13 +45,18 @@ MainWindow::MainWindow(QWidget *parent)
     connect(signupPage, &SignupWindow::loginRequested,[this](){
         stackedWidget->setCurrentIndex(0);
     });
-    // Connect the login signal to a lambda that switches the index
+
     connect(loginPage, &LoginWindow::signupRequested,[this](){
         stackedWidget->setCurrentIndex(1);
     });
-    connect(loginPage, &LoginWindow::loginSuccessful, [this]() {
-        stackedWidget->setCurrentIndex(2); // Switch to Dashboard
-    });
+
+    // Connect the login signal to a lambda that switches the index
+    // In your MainWindow constructor where you connect signals:
+    connect(loginPage, &LoginWindow::loginSuccessful, this, &MainWindow::onUserLoggedIn);
+
+    // connect(loginPage, &LoginWindow::loginSuccessful, [this]() {
+    //     stackedWidget->setCurrentIndex(2); // Switch to Dashboard
+    // });
     connect(dashboardPage, &DashboardWindow::logoutRequested,[this](){
         loginPage->resetForm();
         stackedWidget->setCurrentIndex(0);
@@ -79,7 +84,24 @@ void MainWindow::handleTheme(){
     dashboardPage->applyCurrentTheme();
 };
 
+// The slot implementation:
+void MainWindow::onUserLoggedIn(UserSessionHandler* session) {
+    // 1. Clean up the OLD session if it exists (Prevent Memory Leak)
+    if (currentSession != nullptr) {
+        delete currentSession;
+        currentSession = nullptr;
+    }
 
+    currentSession = session;
+    if (currentSession) {
+        // 1. Pass the session to the Dashboard
+        dashboardPage->initializeDashboard(currentSession);
+
+        // 2. Switch the view
+        stackedWidget->setCurrentIndex(2);
+    }
+
+}
 
 //     QWidget *centeral = new QWidget(this);
 //     setCentralWidget(centeral);
@@ -238,4 +260,4 @@ void MainWindow::handleTheme(){
 //     clearLayout(contentLayout);
 // }
 
-MainWindow::~MainWindow(){};
+MainWindow::~MainWindow(){delete currentSession;};

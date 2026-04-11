@@ -17,6 +17,7 @@ public:
     void updateIcons();
 protected:
     BankDB db;
+
     // Static strings so they are shared by all child classes
     static const QString lightBlueTheme;
     static const QString darkEmeraldTheme;

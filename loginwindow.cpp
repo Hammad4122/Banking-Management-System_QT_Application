@@ -145,9 +145,11 @@ void LoginWindow::handleLogin() {
     // 2. Credential Verification
     // (In the future, 'db.loginUser(user, pass)' will replace this part)
     if (db.userExist(user)) {
-        if (db.loginUser(user,pass) != -1) {
+        int id = db.loginUser(user,pass);
+        if (id != -1) {
             QMessageBox::information(this, "Login", "Login Successful");
-            emit loginSuccessful();
+            UserSessionHandler* session = db.setUserInfo(id);
+            emit loginSuccessful(session);
         } else {
             statusLabel->setText("Incorrect Password. Please try again.");
             statusLabel->setStyleSheet("color: #FF4D4D;"); // Error Red

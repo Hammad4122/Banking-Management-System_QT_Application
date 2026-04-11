@@ -1,4 +1,5 @@
 #include "database.h"
+#include "usersessionhandler.h"
 #include <QtSql/QSqlError>
 #include <QDebug>
 #include <QDateTime>
@@ -325,4 +326,34 @@ bool BankDB::initializeSchema() {
 
     qDebug() << "Database tables validated/created successfully.";
     return true;
+}
+
+UserSessionHandler* BankDB::setUserInfo(int id){
+    QSqlQuery query;
+
+    QString sql = "SELECT "
+                  "u.user_id, u.first_name, u.last_name, u.user_name, u.email, u.mobile_no, "
+                  "a.account_id, a.balance "
+                  "FROM Users u "
+                  "JOIN Accounts a ON u.user_id = a.user_id "
+                  "WHERE u.user_id = ?";
+
+    query.prepare(sql);
+    query.addBindValue(id);
+
+    if (query.exec() && query.next()) {
+        UserSessionHandler* userSession = new UserSessionHandler(
+            query.value("user_id").toInt(),
+            query.value("first_name").toString(),
+            query.value("last_name").toString(),
+            query.value("user_name").toString(),
+            query.value("email").toString(),
+            query.value("mobile_no").toString(),
+            query.value("account_id").toInt(),
+            query.value("balance").toDouble()
+            );
+        return userSession;
+    } else {
+        qDebug() << "Error: User or Account details not found for ID:" << id;
+    }
 }

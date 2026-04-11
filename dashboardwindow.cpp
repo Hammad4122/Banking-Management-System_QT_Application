@@ -75,10 +75,31 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     logoutBtn->setObjectName("logoutBtn");
     logoutBtn->setCursor(Qt::PointingHandCursor);
 
+    // User Full Name Label
+    userGreetFullNameLabel = new QLabel();
+    userGreetFullNameLabel->setObjectName("userGreetingLabel");
+
+    // Username Label
+    usernameLabel = new QLabel();
+
+    // User Email Label
+    userEmail = new QLabel();
+
+    // User Mobile Number Label
+    userMobileNO = new QLabel();
+
+    // User Balance Label
+    userBalance = new QLabel();
+
+
     // Header Layout
     headerLayout->addWidget(creditLogoLabel,0,Qt::AlignLeft);
     headerLayout->addWidget(dashTitleLabel,0,Qt::AlignLeft);
+    headerLayout->setSpacing(20);
+    headerLayout->addWidget(userGreetFullNameLabel,0,Qt::AlignLeft);
     headerLayout->addStretch();
+    headerLayout->addWidget(userBalance,0,Qt::AlignRight);
+    headerLayout->addSpacing(15);
     headerLayout->addWidget(themeToggleBtn,-1,Qt::AlignRight);
     headerLayout->addSpacing(10);
     headerLayout->addWidget(logoutBtn,-1,Qt::AlignRight);
@@ -92,6 +113,9 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
 
     mainLayout->addWidget(header);
     mainLayout->addStretch();
+    mainLayout->addWidget(usernameLabel);
+    mainLayout->addWidget(userEmail);
+    mainLayout->addWidget(userMobileNO);
 
     // Buttons Connection
     connect(logoutBtn, &QPushButton::clicked, [this](){
@@ -101,4 +125,12 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
         emit themeChangeRequested();
     });
 
+}
+
+void DashboardWindow::initializeDashboard(UserSessionHandler* session){
+    userGreetFullNameLabel->setText("Welcome, " + session->getFullName());
+    usernameLabel->setText(session->getUsername());
+    userEmail->setText(session->getEmail());
+    userMobileNO->setText(session->getMobileNo());
+    userBalance->setText(QString("Balance: %1 PKR").arg(session->getBalance(), 0, 'f', 2));
 }

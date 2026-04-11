@@ -9,6 +9,7 @@ class DashboardWindow: public BasePage
     Q_OBJECT
 public:
     explicit DashboardWindow(QWidget *parent = nullptr);
+    void initializeDashboard(UserSessionHandler*);
 private slots:
 
 signals:
@@ -21,6 +22,14 @@ private:
     QPushButton *settingBtn;
     QPushButton *notificationBtn;
     QPushButton *logoutBtn;
+
+    // User informations
+
+    QLabel* userGreetFullNameLabel;
+    QLabel* usernameLabel;
+    QLabel* userEmail;
+    QLabel* userMobileNO;
+    QLabel* userBalance;
 };
 
 #endif // DASHBOARD_H

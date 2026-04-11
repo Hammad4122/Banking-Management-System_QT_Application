@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QVBoxLayout>
+#include "usersessionhandler.h"
 
 class LoginWindow : public BasePage
 {
@@ -19,7 +20,7 @@ private slots:
     void handleLogin();
     void openSignup();
 signals:
-    void loginSuccessful();
+    void loginSuccessful(UserSessionHandler* session);
     void signupRequested();
     void themeChangeRequested();
 private:

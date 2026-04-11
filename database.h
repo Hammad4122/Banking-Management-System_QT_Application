@@ -1,6 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include "usersessionhandler.h"
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QString>
@@ -42,6 +43,8 @@ public:
     // To fetch the list of transactions for a user's statement
     void getTransactionHistory(int accountId);
 
+    // --- User Information ---
+    UserSessionHandler* setUserInfo(int id);
 };
 
 #endif // DATABASE_H
