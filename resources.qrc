@@ -7,5 +7,7 @@
         <file>my_pic.png</file>
         <file>setting_icon.png</file>
         <file>notification.png</file>
+        <file>chip.png</file>
+        <file>master_card_overlapping-circles.png</file>
     </qresource>
 </RCC>

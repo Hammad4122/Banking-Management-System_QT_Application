@@ -140,6 +140,22 @@ const QString BasePage::lightBlueTheme = R"(
 
     #userGreetingLabel {font-size: 18px;}
 
+    #dashCard {
+        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,stop:0 #4340EE, stop:1 #1511F3);
+        border-radius: 25px;
+        color: white;
+    }
+
+    #cardHighlightSection {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #5E5CF1, stop:1 #1511F3);
+        border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+        }
+    #cardHighlightSection QLabel {
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+        background: transparent;
+    }
+
 )";
 
 // The Black & Emerald Theme

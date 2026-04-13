@@ -2,6 +2,7 @@
 #include <qboxlayout.h>
 #include <QPainter>
 #include <QPainterPath>
+#include <QLocale>
 
 // Title Color: #343C6A
 
@@ -11,6 +12,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0,0,0,0);
+    mainLayout->setSpacing(0);
 
 
     QWidget *header = new QWidget();
@@ -18,7 +20,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     header->setFixedSize(1200,65);
 
     QHBoxLayout *headerLayout = new QHBoxLayout(header);
-    headerLayout->addSpacing(5);
+    headerLayout->addSpacing(10);
     headerLayout->setContentsMargins(0,0,0,0);
 
     creditLogoLabel = new QLabel(this);
@@ -90,6 +92,19 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
 
     // User Balance Label
     userBalance = new QLabel();
+    userBalance->setContentsMargins(10,0,0,0);
+
+    // Card Holder Label
+    cardHolderLabel = new QLabel();
+    cardHolderLabel->setContentsMargins(10,0,0,0);
+
+    // Card Expiry Date Label
+    cardExpiryLabel = new QLabel();
+    cardExpiryLabel->setContentsMargins(0,0,10,0);
+
+    // Card Number Label
+    cardNumber = new QLabel();
+    cardNumber->setContentsMargins(10,0,0,0);
 
 
     // Header Layout
@@ -98,8 +113,6 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     headerLayout->setSpacing(20);
     headerLayout->addWidget(userGreetFullNameLabel,0,Qt::AlignLeft);
     headerLayout->addStretch();
-    headerLayout->addWidget(userBalance,0,Qt::AlignRight);
-    headerLayout->addSpacing(15);
     headerLayout->addWidget(themeToggleBtn,-1,Qt::AlignRight);
     headerLayout->addSpacing(10);
     headerLayout->addWidget(logoutBtn,-1,Qt::AlignRight);
@@ -111,11 +124,74 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     headerLayout->addWidget(userImgLabel,-1,Qt::AlignRight);
     headerLayout->addSpacing(10);
 
+
+    // The "Content Host"
+    // This is the widget that will hold content seperately
+    QWidget *contentContainer = new QWidget();
+    contentContainer->setFixedSize(1200,470);
+    contentContainer->setObjectName("contentContainer");
+    QVBoxLayout *containerLayout = new QVBoxLayout(contentContainer);
+    // containerLayout->setContentsMargins(0, 0, 0, 0); // Keep it clean
+
+
+    // Credit Card Widget
+    QWidget *card = new QWidget();
+    card->setObjectName("dashCard");
+    card->setFixedSize(350,220);
+
+    QVBoxLayout *mainCardLayout = new QVBoxLayout(card);
+
+    creditChipLabel = new QLabel();
+    QPixmap creditChipPixmap(":/resources/chip.png"); // Path from your .qrc
+    creditChipLabel->setPixmap(creditChipPixmap.scaled(45, 45, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    creditChipLabel->setContentsMargins(0,10,10,0);
+
+    QHBoxLayout *cardHeader = new QHBoxLayout();
+    cardHeader->addWidget(userBalance,0,Qt::AlignLeft);
+    cardHeader->addWidget(creditChipLabel,0,Qt::AlignRight);
+
+    QHBoxLayout *cardMiddle = new QHBoxLayout();
+    cardMiddle->addWidget(cardHolderLabel,0,Qt::AlignLeft);
+    cardMiddle->addSpacing(10);
+    cardMiddle->addWidget(cardExpiryLabel,0);
+
+    mainCardLayout->addLayout(cardHeader);
+    mainCardLayout->addSpacing(13);
+    mainCardLayout->addLayout(cardMiddle);
+    mainCardLayout->addStretch();
+
+
+
+    QWidget *cardHighlightSection = new QWidget(card); // Important: dashCard is the parent
+    cardHighlightSection->setObjectName("cardHighlightSection");
+    // Position it in the bottom section of the card.
+    // For a 220 height card, maybe the bottom 50 pixels is good.
+    cardHighlightSection->setGeometry(0, 160, 350, 60);
+
+    // Now, add the Card Number and other labels as children of THIS cardHighlightSection
+    QHBoxLayout *highlightLayout = new QHBoxLayout(cardHighlightSection);
+    // QLabel *cardNumberLabel = new QLabel("3778 **** **** 1234");
+    creditCircles = new QLabel();
+    QPixmap creditCirclePixMap(":/resources/master_card_overlapping-circles.png");
+    creditCircles->setPixmap(creditCirclePixMap.scaled(50,50,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    creditCircles->setContentsMargins(0,0,5,0);
+
+    highlightLayout->addWidget(cardNumber,0,Qt::AlignLeft);
+    // highlightLayout->addStretch();
+    highlightLayout->addWidget(creditCircles,0,Qt::AlignRight | Qt::AlignVCenter);
+
+
+    containerLayout->addWidget(card);
+    containerLayout->addStretch();
+
+
     mainLayout->addWidget(header);
+    mainLayout->addWidget(contentContainer);
     mainLayout->addStretch();
     mainLayout->addWidget(usernameLabel);
     mainLayout->addWidget(userEmail);
     mainLayout->addWidget(userMobileNO);
+
 
     // Buttons Connection
     connect(logoutBtn, &QPushButton::clicked, [this](){
@@ -132,5 +208,30 @@ void DashboardWindow::initializeDashboard(UserSessionHandler* session){
     usernameLabel->setText(session->getUsername());
     userEmail->setText(session->getEmail());
     userMobileNO->setText(session->getMobileNo());
-    userBalance->setText(QString("Balance: %1 PKR").arg(session->getBalance(), 0, 'f', 2));
+
+    // 1. Initialize the locale (English format provides the commas you see in banking apps)
+    QLocale locale(QLocale::English);
+    // 2. Format the balance into a string with commas and 2 decimal places
+    QString formattedBalance = locale.toString(54783483.4398, 'f', 2);
+    // 3. Inject the formatted string into the HTML
+    userBalance->setText(QString(
+                             "<span style='font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.8);'>Balance</span><br>"
+                             "<span style='font-size: 20px; font-weight: bold; color: white;'>$%1</span>"
+                             ).arg(formattedBalance));
+
+    // 1. Format the Holder Label
+    cardHolderLabel->setText(QString(
+                                 "<span style='font-size: 10px; color: rgba(255, 255, 255, 0.8);'>CARD HOLDER</span><br>"
+                                 "<span style='font-size: 14px; font-weight: bold; color: white;'>%1</span>"
+                                 ).arg(session->getFullName().toUpper())); // toUpper() matches the "Banking" aesthetic
+
+    // 2. Format the Expiry Label
+    // Assuming you have a getExpiryDate() or similar in your session
+    cardExpiryLabel->setText(QString(
+                                 "<span style='font-size: 10px; color: rgba(255, 255, 255, 0.8);'>VALID THRU</span><br>"
+                                 "<span style='font-size: 14px; font-weight: bold; color: white;'>%1</span>"
+                                 ).arg("04/31")); // Replace with session->getExpiryDate() when your DB is ready
+
+    cardNumber->setText("5123  **** **** 8892");
+    cardNumber->setStyleSheet("font-weight: 600;font-size: 20px;font: 'roboto';");
 }

@@ -18,10 +18,11 @@ signals:
 private:
     QLabel *dashTitleLabel;
     QLabel *userImgLabel;
-    QLabel *greetUser;
     QPushButton *settingBtn;
     QPushButton *notificationBtn;
     QPushButton *logoutBtn;
+    QLabel* creditChipLabel;
+    QLabel* creditCircles;
 
     // User informations
 
@@ -30,6 +31,10 @@ private:
     QLabel* userEmail;
     QLabel* userMobileNO;
     QLabel* userBalance;
+
+    QLabel* cardHolderLabel;
+    QLabel* cardExpiryLabel;
+    QLabel* cardNumber;
 };
 
 #endif // DASHBOARD_H
