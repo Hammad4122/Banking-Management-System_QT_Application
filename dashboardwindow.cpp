@@ -9,24 +9,26 @@
 DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
 
     this->setObjectName("dashboardPage");
-
+    // -- Main Layout --
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->setSpacing(0);
 
-
+    // -- Header --
     QWidget *header = new QWidget();
     header->setObjectName("dashHeader");
     header->setFixedSize(1200,65);
-
+    // Header Layout
     QHBoxLayout *headerLayout = new QHBoxLayout(header);
     headerLayout->addSpacing(10);
     headerLayout->setContentsMargins(0,0,0,0);
 
+    // Dashboard Title Logo
     creditLogoLabel = new QLabel(this);
     QPixmap creditPixmap(":/resources/credit-card_blue.png"); // Path from your .qrc
     creditLogoLabel->setPixmap(creditPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
+    // Dashboard Title Label
     dashTitleLabel = new QLabel("BankDash.");
     dashTitleLabel->setObjectName("dashTitleLabel");
 
@@ -131,60 +133,60 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     contentContainer->setFixedSize(1200,470);
     contentContainer->setObjectName("contentContainer");
     QVBoxLayout *containerLayout = new QVBoxLayout(contentContainer);
-    // containerLayout->setContentsMargins(0, 0, 0, 0); // Keep it clean
 
 
-    // Credit Card Widget
+    // -- Credit Card Widget --
     QWidget *card = new QWidget();
     card->setObjectName("dashCard");
     card->setFixedSize(350,220);
-
+    // Credit Card Layout
     QVBoxLayout *mainCardLayout = new QVBoxLayout(card);
-
+    //Credit Card Chip
     creditChipLabel = new QLabel();
     QPixmap creditChipPixmap(":/resources/chip.png"); // Path from your .qrc
     creditChipLabel->setPixmap(creditChipPixmap.scaled(45, 45, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     creditChipLabel->setContentsMargins(0,10,10,0);
-
+    // Card Header
     QHBoxLayout *cardHeader = new QHBoxLayout();
     cardHeader->addWidget(userBalance,0,Qt::AlignLeft);
     cardHeader->addWidget(creditChipLabel,0,Qt::AlignRight);
-
+    // Card Middle Section
     QHBoxLayout *cardMiddle = new QHBoxLayout();
     cardMiddle->addWidget(cardHolderLabel,0,Qt::AlignLeft);
     cardMiddle->addSpacing(10);
     cardMiddle->addWidget(cardExpiryLabel,0);
-
+    // Added card header and middle section in the card Layout
     mainCardLayout->addLayout(cardHeader);
     mainCardLayout->addSpacing(13);
     mainCardLayout->addLayout(cardMiddle);
     mainCardLayout->addStretch();
-
-
-
+    // -- Credit Card Higlight Section (Bottom) --
     QWidget *cardHighlightSection = new QWidget(card); // Important: dashCard is the parent
     cardHighlightSection->setObjectName("cardHighlightSection");
-    // Position it in the bottom section of the card.
-    // For a 220 height card, maybe the bottom 50 pixels is good.
+    // Positioning it in the bottom section of the card.
+    // For a 220 height card, The bottom 60 pixels is good.
     cardHighlightSection->setGeometry(0, 160, 350, 60);
-
-    // Now, add the Card Number and other labels as children of THIS cardHighlightSection
+    // Adding the Card Number and other labels as children of THIS cardHighlightSection
+    // Card Higligh Section Layout
     QHBoxLayout *highlightLayout = new QHBoxLayout(cardHighlightSection);
-    // QLabel *cardNumberLabel = new QLabel("3778 **** **** 1234");
+    // Master Card Circles
     creditCircles = new QLabel();
     QPixmap creditCirclePixMap(":/resources/master_card_overlapping-circles.png");
     creditCircles->setPixmap(creditCirclePixMap.scaled(50,50,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     creditCircles->setContentsMargins(0,0,5,0);
 
+
+    //Added card number and mastercard Circles in the higlight layout
     highlightLayout->addWidget(cardNumber,0,Qt::AlignLeft);
-    // highlightLayout->addStretch();
     highlightLayout->addWidget(creditCircles,0,Qt::AlignRight | Qt::AlignVCenter);
 
 
+    // Added the card in the Container layout
     containerLayout->addWidget(card);
     containerLayout->addStretch();
 
 
+    // Added the header and content container widget
     mainLayout->addWidget(header);
     mainLayout->addWidget(contentContainer);
     mainLayout->addStretch();
@@ -200,7 +202,6 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     connect(themeToggleBtn, &QPushButton::clicked,[this](){
         emit themeChangeRequested();
     });
-
 }
 
 void DashboardWindow::initializeDashboard(UserSessionHandler* session){
