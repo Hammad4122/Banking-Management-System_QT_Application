@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
 
+    // this->setWindowFlags(Qt::FramelessWindowHint);
+    // this->setAttribute(Qt::WA_TranslucentBackground);
+    // this->setStyleSheet("QDialog {border-radius: 40px;}");
+
     setFixedSize(1200,600);
     setWindowTitle("Banking Management System");
 

@@ -29,6 +29,7 @@ protected:
 
     QLabel* bankLogoLabel = nullptr;
     QLabel* creditLogoLabel = nullptr;
+
 };
 
 #endif // BASEPAGE_H

@@ -244,20 +244,20 @@ void DashboardWindow::initializeDashboard(UserSessionHandler* session){
     QString formattedBalance = locale.toString(54783483.4398, 'f', 2);
     // 3. Inject the formatted string into the HTML
     userBalance->setText(QString(
-                             "<span style='font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.8);'>Balance</span><br>"
+                             "<span style='font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.5);'>Balance</span><br>"
                              "<span style='font-size: 20px; font-weight: bold; color: white;'>$%1</span>"
                              ).arg(formattedBalance));
 
     // 1. Format the Holder Label
     cardHolderLabel->setText(QString(
-                                 "<span style='font-size: 10px; color: rgba(255, 255, 255, 0.8);'>CARD HOLDER</span><br>"
+                                 "<span style='font-size: 10px; color: rgba(255, 255, 255, 0.5);'>CARD HOLDER</span><br>"
                                  "<span style='font-size: 14px; font-weight: bold; color: white;'>%1</span>"
                                  ).arg(session->getFullName().toUpper())); // toUpper() matches the "Banking" aesthetic
 
     // 2. Format the Expiry Label
     // Assuming you have a getExpiryDate() or similar in your session
     cardExpiryLabel->setText(QString(
-                                 "<span style='font-size: 10px; color: rgba(255, 255, 255, 0.8);'>VALID THRU</span><br>"
+                                 "<span style='font-size: 10px; color: rgba(255, 255, 255, 0.5);'>VALID THRU</span><br>"
                                  "<span style='font-size: 14px; font-weight: bold; color: white;'>%1</span>"
                                  ).arg("04/31")); // Replace with session->getExpiryDate() when your DB is ready
 

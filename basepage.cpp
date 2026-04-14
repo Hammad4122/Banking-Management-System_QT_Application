@@ -63,7 +63,7 @@ const QString BasePage::lightBlueTheme = R"(
         margin-top: 0px;
     }
 
-    /* Login Button */
+    /* Logout Button */
     #logoutBtn {
         background-color: #2D60FF;
         color: white;
@@ -138,11 +138,14 @@ const QString BasePage::lightBlueTheme = R"(
 
     #logoTitleLabel {font-size: 14px; color: #333; line-height: 1.2;}
 
-    #userGreetingLabel {font-size: 18px;}
+    #userGreetingLabel {font-size: 18px;color: #273671;}
 
     #dashCard {
         background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,stop:0 #4340EE, stop:1 #1511F3);
         border-radius: 25px;
+    }
+
+    #dashCard QLabel {
         color: white;
     }
 
@@ -150,6 +153,7 @@ const QString BasePage::lightBlueTheme = R"(
         background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #5E5CF1, stop:1 #1511F3);
         border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
         }
+
     #cardHighlightSection QLabel {
         color: white;
         font-family: 'Segoe UI', sans-serif;
@@ -160,6 +164,8 @@ const QString BasePage::lightBlueTheme = R"(
     #depositBtn,#transferBtn,#withdrawBtn {
 
     }
+
+
 
 )";
 
@@ -215,8 +221,8 @@ const QString BasePage::darkEmeraldTheme = R"(
 
     /* Primary Action Buttons */
     QPushButton {
-        background-color: #50C878;
-        color: #0B0E11;
+        background-color: #49B870;
+        color: #0E3A1A;
         border-radius: 8px;
         font-weight: bold;
         font-size: 15px;
@@ -241,14 +247,75 @@ const QString BasePage::darkEmeraldTheme = R"(
         font-weight: normal;
     }
 
+
+    /* Logout Button */
+    #logoutBtn {
+        background-color: #49B870;
+        color: #0E3A1A;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 13px;
+        padding: 2px;
+    }
+
     #linkBtn:hover, #loginLinkBtn:hover {
         text-decoration: underline;
         color: #70DB93;
     }
+
     #logoTitleLabel {font-size: 14px; color: #caccca; line-height: 1.2;}
+
+    #userGreetingLabel {font-size: 18px;color: #74DD90;}
 
     #dashHeader {background-color: #161A1E;}
 
+    #dashTitleLabel {font-size: 16px; color: #74DD90;}
+
+    #dashCard {
+        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,stop:0 #43A35F, stop:1 #2E7041);
+        border-radius: 25px;
+    }
+
+    #dashCard QLabel {
+        color: #E8F5E9;
+    }
+
+    #cardHighlightSection {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4BC276, stop:1 #2E7041);
+        border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+    }
+
+    #cardHiglightSection QLabel {
+        color: #E8F5E9;
+    }
+
+    /* Styling for the circular settings button */
+    #settingBtn{
+        background-color: #16161E;
+        border: none;
+        border-radius: 17px;       /* Half of the 40px width/height to make it a circle */
+
+        /* Path to icon in resources */
+        qproperty-icon: url(":/resources/setting_icon.png");
+        qproperty-iconSize: 22px 22px; /* Size of the gear inside the circle */
+    }
+    #notificationBtn{
+        background-color: #16161E;
+        border: none;
+        border-radius: 17px;       /* Half of the 40px width/height to make it a circle */
+
+        /* Path to icon in resources */
+        qproperty-icon: url(":/resources/notification.png");
+        qproperty-iconSize: 22px 22px; /* Size of the notification icon inside the circle */
+    }
+    /* Add a hover effect for a professional feel */
+    #settingBtn:hover ,#notificationBtn:hover {
+        background-color: #0D1012;
+    }
+    #settingBtn:pressed, #notificationBtn:pressed {
+        background-color: #3D3D3D;
+        margin-top: 0px;
+    }
 
 )";
 
