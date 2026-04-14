@@ -156,6 +156,11 @@ const QString BasePage::lightBlueTheme = R"(
         background: transparent;
     }
 
+    /* Action Buttons */
+    #depositBtn,#transferBtn,#withdrawBtn {
+
+    }
+
 )";
 
 // The Black & Emerald Theme
