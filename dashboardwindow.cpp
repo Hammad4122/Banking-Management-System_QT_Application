@@ -106,6 +106,33 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     cardNumber = new QLabel();
     cardNumber->setContentsMargins(10,0,0,0);
 
+    // Action Buttons Widget
+    QWidget *actionButtonsWidget = new QWidget();
+    actionButtonsWidget->setFixedWidth(350);
+
+    // Action Buttons with layout
+    QHBoxLayout *actionBtnLayout = new QHBoxLayout(actionButtonsWidget);
+    actionBtnLayout->setContentsMargins(0,2,0,2);
+
+    //Action Buttons Initialization
+    depositBtn = new QPushButton("Deposit");
+    transferBtn = new QPushButton("Transfer");
+    withdrawBtn = new QPushButton("Withdraw");
+
+    // Action Buttons and Label Object Names
+    depositBtn->setObjectName("depositBtn");
+    transferBtn->setObjectName("transferBtn");
+    withdrawBtn->setObjectName("withdrawBtn");
+
+    // Action Buttons Setting Cursor
+    depositBtn->setCursor(Qt::PointingHandCursor);
+    transferBtn->setCursor(Qt::PointingHandCursor);
+    withdrawBtn->setCursor(Qt::PointingHandCursor);
+
+    // Adding Action Buttons to the layout
+    actionBtnLayout->addWidget(depositBtn);
+    actionBtnLayout->addWidget(transferBtn);
+    actionBtnLayout->addWidget(withdrawBtn);
 
     // Header Layout
     headerLayout->addWidget(creditLogoLabel,0,Qt::AlignLeft);
@@ -182,6 +209,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
 
 
     containerLayout->addWidget(card);
+    containerLayout->addWidget(actionButtonsWidget);
     containerLayout->addStretch();
 
 

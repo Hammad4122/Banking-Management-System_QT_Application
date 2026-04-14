@@ -36,7 +36,8 @@ private:
     QLabel* cardExpiryLabel;
     QLabel* cardNumber;
 
-    //Action Buttons
+    //Action Buttons and Label
+    QLabel* quickActionsLabel;
     QPushButton* depositBtn;
     QPushButton* transferBtn;
     QPushButton* withdrawBtn;
