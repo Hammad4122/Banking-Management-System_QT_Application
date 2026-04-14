@@ -35,6 +35,11 @@ private:
     QLabel* cardHolderLabel;
     QLabel* cardExpiryLabel;
     QLabel* cardNumber;
+
+    //Action Buttons
+    QPushButton* depositBtn;
+    QPushButton* transferBtn;
+    QPushButton* withdrawBtn;
 };
 
 #endif // DASHBOARD_H
