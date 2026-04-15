@@ -35,6 +35,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         resources.qrc
         settingwindow.h settingwindow.cpp
         usersessionhandler.h usersessionhandler.cpp
+        transactiondialog.h transactiondialog.cpp
     )
 else()
     if(ANDROID)

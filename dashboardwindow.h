@@ -2,6 +2,7 @@
 #define DASHBOARDWINDOW_H
 
 #include "basepage.h"
+#include "transactiondialog.h"
 #include <qmainwindow.h>
 #include <QLabel>
 class DashboardWindow: public BasePage
@@ -15,6 +16,7 @@ private slots:
 signals:
     void logoutRequested();
     void themeChangeRequested();
+    void depositRequested();
 private:
     QLabel *dashTitleLabel;
     QLabel *userImgLabel;
@@ -41,6 +43,9 @@ private:
     QPushButton* depositBtn;
     QPushButton* transferBtn;
     QPushButton* withdrawBtn;
+
+    //Transaction Dialog
+    TransactionDialog* dialog;
 };
 
 #endif // DASHBOARD_H
