@@ -18,9 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
 
-    resize(1200,600);
-    setMinimumSize(400,300);
-    setMaximumSize(1500,800);
+    setFixedSize(1200,600);
+    // resize(1200,600);
+    // setMinimumSize(400,300);
+    // setMaximumSize(1500,800);
     setWindowTitle("Banking Management System");
 
     // 1. Create the Stacked Widget
@@ -32,14 +33,10 @@ MainWindow::MainWindow(QWidget *parent)
     signupPage = new SignupWindow();
     dashboardPage = new DashboardWindow();
 
-    // 3. Add them to the stack
+    // 3. Adding pages to the stack
     stackedWidget->addWidget(loginPage);    // Index 0
     stackedWidget->addWidget(signupPage);   // Index 1
     stackedWidget->addWidget(dashboardPage); // Index 2
-
-    // // Add this right before or after you add the pages to the stack
-    // loginPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    dashboardPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // 4. Start with Login
     stackedWidget->setCurrentIndex(0);  // Change back to 0
@@ -52,13 +49,9 @@ MainWindow::MainWindow(QWidget *parent)
         stackedWidget->setCurrentIndex(1);
     });
 
-    // Connect the login signal to a lambda that switches the index
-    // In your MainWindow constructor where you connect signals:
+    // Connecting the login signal to a lambda that switches the index
     connect(loginPage, &LoginWindow::loginSuccessful, this, &MainWindow::onUserLoggedIn);
 
-    // connect(loginPage, &LoginWindow::loginSuccessful, [this]() {
-    //     stackedWidget->setCurrentIndex(2); // Switch to Dashboard
-    // });
     connect(dashboardPage, &DashboardWindow::logoutRequested,[this](){
         loginPage->resetForm();
         stackedWidget->setCurrentIndex(0);
