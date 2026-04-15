@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QLocale>
+#include "transactiondialog.h"
 
 // Title Color: #343C6A
 
@@ -229,6 +230,21 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     });
     connect(themeToggleBtn, &QPushButton::clicked,[this](){
         emit themeChangeRequested();
+    });
+    connect(depositBtn,&QPushButton::clicked,[this](){
+        dialog = new TransactionDialog(DEPOSIT);
+        dialog->setModal(true);
+        dialog->show();
+    });
+    connect(transferBtn,&QPushButton::clicked,[this](){
+        dialog = new TransactionDialog(TRANSFER);
+        dialog->setModal(true);
+        dialog->show();
+    });
+    connect(withdrawBtn,&QPushButton::clicked,[this](){
+        dialog = new TransactionDialog(WITHDRAW);
+        dialog->setModal(true);
+        dialog->show();
     });
 }
 
