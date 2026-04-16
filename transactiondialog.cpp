@@ -3,7 +3,7 @@
 #include <qpushbutton.h>
 
 TransactionDialog::TransactionDialog(TransactionType type, QWidget* parent ):QDialog(parent),m_type(type){
-    this->setFixedSize(400,500);
+    this->setFixedSize(400,250);
     setupUI();
     if (m_type == TRANSFER){
         dialogTitle->setText("Transfer Funds");
@@ -20,7 +20,7 @@ TransactionDialog::TransactionDialog(TransactionType type, QWidget* parent ):QDi
 
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
-    mainLayout->setSpacing(5);
+    mainLayout->setSpacing(15);
     mainLayout->addWidget(dialogTitle);
     mainLayout->addWidget(amountFieldLabel);
     mainLayout->addWidget(amountInputField);
