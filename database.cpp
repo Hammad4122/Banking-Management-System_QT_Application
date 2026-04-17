@@ -19,8 +19,8 @@ bool BankDB::connectDB() {
     // 2. If not, set up the QODBC connection for SQL Server
     db = QSqlDatabase::addDatabase("QODBC");
 
-    QString connStr = "Driver={ODBC Driver 17 for SQL Server};"
-                      "Server=HAMMAD\\SQLEXPRESS;"
+    QString connStr = "Driver={ODBC Driver 18 for SQL Server};"
+                      "Server=Hammad\\SQLEXPRESS;"
                       "Database=BankDB;"
                       "Trusted_Connection=yes;"
                       "Encrypt=yes;"

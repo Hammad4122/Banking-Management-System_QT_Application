@@ -11,7 +11,7 @@ bool BasePage::isDarkMode = false;
 // The Light Blue Theme
 const QString BasePage::lightBlueTheme = R"(
     /* Main Backgrounds */
-    #loginPage, #signupPage, #dashboardPage, #dialogWidget {
+    #loginPage, #signupPage, #dashboardPage {
         background-color: #F5F7FA;
     }
 
