@@ -5,7 +5,6 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <conio.h>
 #include <QDebug>
 #include "mainwindow.h"
 
