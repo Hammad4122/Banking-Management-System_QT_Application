@@ -27,7 +27,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         styling.qss
-        bank.h bank.cpp
+
         loginwindow.h loginwindow.cpp
         signupwindow.h signupwindow.cpp
         dashboardwindow.h dashboardwindow.cpp
