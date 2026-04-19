@@ -385,3 +385,5 @@ void BasePage::updateIcons(){
 void BasePage::toggleGlobalTheme(){
     isDarkMode = !isDarkMode;
 }
+
+bool BasePage::getIsDarkMode(){return isDarkMode;}

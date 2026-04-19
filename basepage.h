@@ -15,6 +15,7 @@ public:
     void static toggleGlobalTheme();
     void applyCurrentTheme();
     void updateIcons();
+    static bool getIsDarkMode();
 protected:
     BankDB db;
 

@@ -21,7 +21,8 @@ private:
     QPushButton* actionBtn;
 
     void setupUI();
-
+    void applyCurrentTheme();
+    void paintEvent(QPaintEvent*);
 };
 
 #endif // TRANSACTIONDIALOG_H

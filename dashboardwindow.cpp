@@ -233,6 +233,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     });
     connect(depositBtn,&QPushButton::clicked,[this](){
         dialog = new TransactionDialog(DEPOSIT);
+        dialog->setFixedSize(400,200);
         dialog->setModal(true);
         dialog->show();
     });
@@ -243,6 +244,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     });
     connect(withdrawBtn,&QPushButton::clicked,[this](){
         dialog = new TransactionDialog(WITHDRAW);
+        dialog->setFixedSize(400,200);
         dialog->setModal(true);
         dialog->show();
     });
