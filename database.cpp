@@ -19,12 +19,24 @@ bool BankDB::connectDB() {
     // 2. If not, set up the QODBC connection for SQL Server
     db = QSqlDatabase::addDatabase("QODBC");
 
-    QString connStr = "Driver={ODBC Driver 18 for SQL Server};"
-                      "Server=Hammad\\SQLEXPRESS;"
-                      "Database=BankDB;"
-                      "Trusted_Connection=yes;"
-                      "Encrypt=yes;"
-                      "TrustServerCertificate=yes;";
+    QString connStr;
+
+    #ifdef Q_OS_WIN
+        // Windows Configuration: Local instance using Windows Auth
+        connStr = "Driver={SQL Server};"
+                  "Server=Hammad\\SQLEXPRESS;"
+                  "Database=BankDB;"
+                  "Trusted_Connection=yes;";
+    #else
+        // Linux/Pop!_OS Configuration: Remote connection via IP using SQL Auth
+        connStr = "Driver={ODBC Driver 18 for SQL Server};"
+                  "Server=192.168.10.8,1433;"
+                  "Database=BankDB;"
+                  "UID=sa;"
+                  "PWD=BMS@2026;" // Use the password you set in SSMS
+                  "Encrypt=yes;"
+                  "TrustServerCertificate=yes;";
+    #endif
 
     db.setDatabaseName(connStr);
 
