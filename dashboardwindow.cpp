@@ -219,9 +219,6 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     mainLayout->addWidget(header);
     mainLayout->addWidget(contentContainer);
     mainLayout->addStretch();
-    mainLayout->addWidget(usernameLabel);
-    mainLayout->addWidget(userEmail);
-    mainLayout->addWidget(userMobileNO);
 
 
     // Buttons Connection
@@ -232,25 +229,34 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
         emit themeChangeRequested();
     });
     connect(depositBtn,&QPushButton::clicked,[this](){
-        dialog = new TransactionDialog(DEPOSIT);
-        dialog->setFixedSize(400,200);
+        dialog = new TransactionDialog(DEPOSIT,m_session);
         dialog->setModal(true);
         dialog->show();
+
+        connect(dialog,&TransactionDialog::updateBalance,[this](){
+            updateBalance(m_session);
+        });
     });
     connect(transferBtn,&QPushButton::clicked,[this](){
-        dialog = new TransactionDialog(TRANSFER);
+        dialog = new TransactionDialog(TRANSFER,m_session);
         dialog->setModal(true);
         dialog->show();
+        connect(dialog,&TransactionDialog::updateBalance,[this](){
+            updateBalance(m_session);
+        });
     });
     connect(withdrawBtn,&QPushButton::clicked,[this](){
-        dialog = new TransactionDialog(WITHDRAW);
-        dialog->setFixedSize(400,200);
+        dialog = new TransactionDialog(WITHDRAW,m_session);
         dialog->setModal(true);
         dialog->show();
+        connect(dialog,&TransactionDialog::updateBalance,[this](){
+            updateBalance(m_session);
+        });
     });
 }
 
 void DashboardWindow::initializeDashboard(UserSessionHandler* session){
+    this->m_session = session;
     userGreetFullNameLabel->setText("Welcome, " + session->getFullName());
     usernameLabel->setText(session->getUsername());
     userEmail->setText(session->getEmail());
@@ -259,7 +265,7 @@ void DashboardWindow::initializeDashboard(UserSessionHandler* session){
     // 1. Initialize the locale (English format provides the commas you see in banking apps)
     QLocale locale(QLocale::English);
     // 2. Format the balance into a string with commas and 2 decimal places
-    QString formattedBalance = locale.toString(54783483.4398, 'f', 2);
+    QString formattedBalance = locale.toString(session->getBalance(), 'f', 2);
     // 3. Inject the formatted string into the HTML
     userBalance->setText(QString(
                              "<span style='font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.5);'>Balance</span><br>"
@@ -281,4 +287,18 @@ void DashboardWindow::initializeDashboard(UserSessionHandler* session){
 
     cardNumber->setText("5123  **** **** 8892");
     cardNumber->setStyleSheet("font-weight: 600;font-size: 20px;font: 'roboto';");
+}
+
+void DashboardWindow::updateBalance(UserSessionHandler *session){
+    double freshBalance = db.getBalance(session->getAccountID());
+    session->setBalance(freshBalance); // Updates the session object internal value
+    // 1. Initialize the locale (English format provides the commas you see in banking apps)
+    QLocale locale(QLocale::English);
+    // 2. Format the balance into a string with commas and 2 decimal places
+    QString formattedBalance = locale.toString(session->getBalance(), 'f', 2);
+    // 3. Inject the formatted string into the HTML
+    userBalance->setText(QString(
+                             "<span style='font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.5);'>Balance</span><br>"
+                             "<span style='font-size: 20px; font-weight: bold; color: white;'>$%1</span>"
+                             ).arg(formattedBalance));
 }

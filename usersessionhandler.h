@@ -28,6 +28,7 @@ public:
     int getUserId() const { return userId; }
     int getAccountID() const { return userAccountID; }
     double getBalance() const { return userBalance; }
+    void setBalance(double);
 
     // Return by const reference for strings (Industry Standard for performance)
     const QString& getFirstName() const { return userfirstName; }

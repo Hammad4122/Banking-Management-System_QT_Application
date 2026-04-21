@@ -20,24 +20,25 @@ public:
 
     // --- User & Authentication ---
     // Matches 'Users' table
-    bool registerUser(QString firstName, QString lastName, QString userName,
-                      QString email, QString password, QString mobile);
-    int loginUser(QString userName, QString password);
-    bool userExist(QString userName);
-    bool emailExist(QString email);
-    bool mobileNoExist(QString mobileNo);
+    bool registerUser(const QString& firstName,const QString& lastName,const QString& userName,
+                      const QString& email,const QString& password, QString& mobile,const QString &tpin);
+    int loginUser(const QString userName,const QString password);
+    bool userExist(const QString &userName);
+    bool emailExist(const QString &email);
+    bool mobileNoExist(const QString &mobileNo);
+    bool accountExist(const QString &accountNo);
 
     // --- Account Operations ---
     // Matches 'Accounts' table
-    bool createAccount(int userId, QString currency = "PKR");
+    bool createAccount(int userId,const QString& currency = "PKR");
     double getBalance(int accountId);
-    int getUserid(QString username);
+    int getUserid(const QString &username);
 
     // --- Financial Transactions ---
     // Matches 'Transactions' table
-    bool deposit(int accountId, double amount, QString remarks = "");
-    bool withdraw(int accountId, double amount, QString remarks = "");
-    bool transfer(int senderAccountId, int receiverAccountId, double amount, QString remarks = "");
+    bool executeDeposit(int accountId, double amount,const QString& remarks = "");
+    bool executeWithdraw(int accountId, double amount,const QString& remarks = "");
+    bool transfer(int senderAccountId, int receiverAccountId, double amount,const  QString& remarks = "");
 
     // --- Data Retrieval ---
     // To fetch the list of transactions for a user's statement
@@ -45,6 +46,9 @@ public:
 
     // --- User Information ---
     UserSessionHandler* setUserInfo(int id);
+
+    // -- Auth Transaction --
+    bool authTransaction(int id, const QString& tpin);
 };
 
 #endif // DATABASE_H

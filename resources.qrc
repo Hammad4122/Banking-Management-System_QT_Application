@@ -9,5 +9,6 @@
         <file>notification.png</file>
         <file>chip.png</file>
         <file>master_card_overlapping-circles.png</file>
+        <file>Success_Check.gif</file>
     </qresource>
 </RCC>

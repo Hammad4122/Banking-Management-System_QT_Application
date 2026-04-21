@@ -72,26 +72,31 @@ void BankDB::disconnectDB() {
 
 // --- User & Authentication ---
 
-bool BankDB::registerUser(QString firstName, QString lastName, QString userName,
-                          QString email, QString password, QString mobile) {
+bool BankDB::registerUser(const QString &firstName, const QString &lastName, const QString &userName,
+                          const QString &email, const QString &password, QString &mobile, const QString &tpin) {
     // Convert plain text password to a SHA-256 Hash
     QByteArray passwordData = password.toUtf8();
-    QString hashedPath = QString(QCryptographicHash::hash(passwordData, QCryptographicHash::Sha256).toHex());
+    QString passHashedPath = QString(QCryptographicHash::hash(passwordData, QCryptographicHash::Sha256).toHex());
+
+    // Convert plain tpin to a SHA-256
+    QByteArray tpinData = tpin.toUtf8();
+    QString tpinHashedPath = QString(QCryptographicHash::hash(tpinData,QCryptographicHash::Sha256).toHex());
 
     QSqlQuery query;
-    query.prepare("INSERT INTO Users (first_name, last_name, user_name, email, password, mobile_no) "
-                  "VALUES (?, ?, ?, ?, ?, ?)");
+    query.prepare("INSERT INTO Users (first_name, last_name, user_name, email, password, mobile_no,tpin) "
+                  "VALUES (?, ?, ?, ?, ?, ?,?)");
     query.addBindValue(firstName);
     query.addBindValue(lastName);
     query.addBindValue(userName);
     query.addBindValue(email);
-    query.addBindValue(hashedPath);
+    query.addBindValue(passHashedPath);
     query.addBindValue(mobile);
+    query.addBindValue(tpinHashedPath);
 
     return query.exec();
 }
 
-int BankDB::loginUser(QString userName, QString password) {
+int BankDB::loginUser(const QString userName, const QString password) {
     // 1. Hash the password (exactly like you had it)
     QByteArray passwordData = password.toUtf8();
     QString hashedPath = QString(QCryptographicHash::hash(passwordData, QCryptographicHash::Sha256).toHex());
@@ -111,7 +116,7 @@ int BankDB::loginUser(QString userName, QString password) {
     return -1;
 }
 
-bool BankDB::userExist(QString userName){
+bool BankDB::userExist(const QString& userName){
     QSqlQuery query;
     query.prepare("Select user_name FROM Users WHERE user_name = ?");
     query.addBindValue(userName);
@@ -123,7 +128,7 @@ bool BankDB::userExist(QString userName){
     return false;
 }
 
-bool BankDB::emailExist(QString email){
+bool BankDB::emailExist(const QString &email){
     QSqlQuery query;
     query.prepare("SELECT email FROM Users WHERE email = ?");
     query.addBindValue(email);
@@ -135,7 +140,7 @@ bool BankDB::emailExist(QString email){
     return false;
 }
 
-bool BankDB::mobileNoExist(QString mobileNo){
+bool BankDB::mobileNoExist(const QString &mobileNo){
     QSqlQuery query;
     query.prepare("SELECT mobile_no FROM Users WHERE mobile_no = ?");
     query.addBindValue(mobileNo);
@@ -147,7 +152,19 @@ bool BankDB::mobileNoExist(QString mobileNo){
     return false;
 }
 
-int BankDB::getUserid(QString username){
+bool BankDB::accountExist(const QString &accountNo){
+    QSqlQuery query;
+    query.prepare("SELECT account_id FROM Accounts WHERE account_id = ?");
+    query.addBindValue(accountNo);
+    if (query.exec() && query.next()){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+int BankDB::getUserid(const QString& username){
     QSqlQuery query;
     query.prepare("SELECT user_id FROM Users WHERE user_name = ?");
     query.addBindValue(username);
@@ -160,7 +177,7 @@ int BankDB::getUserid(QString username){
 
 // --- Account Operations ---
 
-bool BankDB::createAccount(int userId, QString currency) {
+bool BankDB::createAccount(int userId, const QString &currency) {
     QSqlQuery query;
     query.prepare("INSERT INTO Accounts (user_id, balance, currency) VALUES (?, 0, ?)");
     query.addBindValue(userId);
@@ -182,18 +199,21 @@ double BankDB::getBalance(int accountId) {
 
 // --- Financial Transactions ---
 
-bool BankDB::deposit(int accountId, double amount, QString remarks) {
-    db.transaction();
+bool BankDB::executeDeposit(int accountId, double amount, const QString& remarks) {
+    // 1. Get the current balance BEFORE starting the transaction
+    double currentBalance = getBalance(accountId);
+
     QSqlQuery query;
+    double newBalance = currentBalance + amount;
 
-    // 1. Update Balance
-    query.prepare("UPDATE Accounts SET balance = balance + ? WHERE account_id = ?");
-    query.addBindValue(amount);
+    // 2. Update Balance
+    query.prepare("UPDATE Accounts SET balance = ? WHERE account_id = ?");
+    query.addBindValue(newBalance);
     query.addBindValue(accountId);
-    if (!query.exec()) { db.rollback(); return false; }
 
-    // 2. Log Transaction
-    double newBalance = getBalance(accountId);
+    query.exec();
+
+    // 3. Log Transaction
     query.prepare("INSERT INTO Transactions (account_id, transaction_type, amount, balance_after, remarks) "
                   "VALUES (?, 'Deposit', ?, ?, ?)");
     query.addBindValue(accountId);
@@ -201,55 +221,45 @@ bool BankDB::deposit(int accountId, double amount, QString remarks) {
     query.addBindValue(newBalance);
     query.addBindValue(remarks);
 
-    if (!query.exec()) { db.rollback(); return false; }
-    return db.commit();
+    return query.exec();
 }
 
-bool BankDB::withdraw(int accountId, double amount, QString remarks) {
-    double currentBalance = getBalance(accountId);
-    if (currentBalance < amount) return false; // Insufficient funds
-
-    db.transaction();
+// This is a private helper that just does the SQL work
+bool BankDB::executeWithdraw(int accountId, double amount, const QString& remarks) {
     QSqlQuery query;
+    // 1. Check Balance
+    if (getBalance(accountId) < amount) return false;
 
-    // 1. Update Balance
+    // 2. Update Balance
     query.prepare("UPDATE Accounts SET balance = balance - ? WHERE account_id = ?");
     query.addBindValue(amount);
     query.addBindValue(accountId);
-    if (!query.exec()) { db.rollback(); return false; }
 
-    // 2. Log Transaction
-    double newBalance = currentBalance - amount;
+    query.exec();
+
+    // 3. Log
     query.prepare("INSERT INTO Transactions (account_id, transaction_type, amount, balance_after, remarks) "
                   "VALUES (?, 'Withdrawal', ?, ?, ?)");
     query.addBindValue(accountId);
     query.addBindValue(amount);
-    query.addBindValue(newBalance);
+    query.addBindValue(getBalance(accountId));
     query.addBindValue(remarks);
 
-    if (!query.exec()) { db.rollback(); return false; }
-    return db.commit();
+    return query.exec();
 }
 
-bool BankDB::transfer(int senderId, int receiverId, double amount, QString remarks) {
-    double senderBalance = getBalance(senderId);
-    if (senderBalance < amount) return false;
+bool BankDB::transfer(int senderId, int receiverId, double amount, const QString &remarks) {
 
-    db.transaction();
-
-    // Step 1: Withdraw from Sender
-    if (!withdraw(senderId, amount, "Transfer to " + QString::number(receiverId) + ": " + remarks)) {
-        db.rollback();
+    // Use the logic-only helpers
+    if (!executeWithdraw(senderId, amount, "Transfer to " + QString::number(receiverId))) {
         return false;
     }
 
-    // Step 2: Deposit to Receiver
-    if (!deposit(receiverId, amount, "Transfer from " + QString::number(senderId) + ": " + remarks)) {
-        db.rollback();
+    if (!executeDeposit(receiverId, amount, "Transfer from " + QString::number(senderId))) {
         return false;
     }
 
-    return db.commit();
+    return true;
 }
 
 // --- Data Retrieval ---
@@ -368,4 +378,28 @@ UserSessionHandler* BankDB::setUserInfo(int id){
     } else {
         qDebug() << "Error: User or Account details not found for ID:" << id;
     }
+    return nullptr;
+}
+
+bool BankDB::authTransaction(int id, const QString &tpin) {
+    QSqlQuery query;
+    // Fix: Removed duplicate "FROM Users" and fixed syntax
+    query.prepare("SELECT tpin FROM Users WHERE user_id = ?");
+    query.addBindValue(id);
+
+    if (!query.exec()) {
+        qDebug() << "Query failed:" << query.lastError().text();
+        return false;
+    }
+
+    if (query.next()) { // You MUST call next() to move to the first result
+        QByteArray tpinData = tpin.toUtf8();
+        QString tpinHashedInput = QString(QCryptographicHash::hash(tpinData, QCryptographicHash::Sha256).toHex());
+
+        QString storedHash = query.value(0).toString();
+
+        return (tpinHashedInput == storedHash);
+    }
+
+    return false; // wrong tpin (not matched)
 }

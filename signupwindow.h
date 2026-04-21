@@ -26,6 +26,7 @@ private:
     QLineEdit *mobileNoField;
     QLineEdit *passField;
     QLineEdit *passConfirmField;
+    QLineEdit *tpinField;
     QPushButton *signupBtn;
     QPushButton *loginLinkBtn;
     QLabel *statusLabel;
@@ -33,6 +34,7 @@ private:
     QLabel *usernameStatusLabel;
     QLabel *emailStatusLabel;
     QLabel *mobileNoStatusLabel;
+
 
     void resetForm();
 };

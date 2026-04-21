@@ -11,13 +11,12 @@ class DashboardWindow: public BasePage
 public:
     explicit DashboardWindow(QWidget *parent = nullptr);
     void initializeDashboard(UserSessionHandler*);
-private slots:
-
 signals:
     void logoutRequested();
     void themeChangeRequested();
     void depositRequested();
 private:
+    UserSessionHandler *m_session;
     QLabel *dashTitleLabel;
     QLabel *userImgLabel;
     QPushButton *settingBtn;
@@ -46,6 +45,8 @@ private:
 
     //Transaction Dialog
     TransactionDialog* dialog;
+
+    void updateBalance(UserSessionHandler*);
 };
 
 #endif // DASHBOARD_H

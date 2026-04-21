@@ -7,6 +7,7 @@
 #include <QGraphicsDropShadowEffect>
 #include <QRegularExpression>
 #include <QMessageBox>
+#include <qvalidator.h>
 
 SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     this->setObjectName("signupPage");
@@ -46,7 +47,7 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     // Card Widget
     QWidget *card = new QWidget();
     card->setObjectName("signupCard");
-    card->setFixedSize(500,500);
+    card->setFixedSize(550,500);
 
     // Signup Card Layout
     QVBoxLayout *cardLayout = new QVBoxLayout(card);
@@ -98,10 +99,18 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     passConfirmField->setPlaceholderText("Re-type your password");
     passConfirmField->setFixedHeight(45);
 
+    // Tpin Input Field
+    tpinField = new QLineEdit();
+    tpinField->setPlaceholderText("Four digit Transaction PIN");
+    tpinField->setFixedHeight(45);
+    tpinField->setValidator(new QRegularExpressionValidator(QRegularExpression("^[0-9]{4}$"), this));
+
     // Horizontal Layout for Password fields
     QHBoxLayout *passHLayout = new QHBoxLayout();
     passHLayout->addWidget(passField);
     passHLayout->addWidget(passConfirmField);
+    passHLayout->addWidget(tpinField);
+    passHLayout->setSpacing(3);
 
     // Signup Button
     signupBtn = new QPushButton("Create Account");
@@ -218,14 +227,16 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
         });
     }
 
-    // 3. Special case for passwords (since they share one statusLabel)
-    auto passReset = [this]() {
+    // 3. Special case for passwords and tpin field (since they share one statusLabel)
+    auto passAndPinReset = [this]() {
         statusLabel->hide();
         passField->setStyleSheet("");
         passConfirmField->setStyleSheet("");
+        tpinField->setStyleSheet("");
     };
-    connect(passField, &QLineEdit::textChanged, passReset);
-    connect(passConfirmField, &QLineEdit::textChanged, passReset);
+    connect(passField, &QLineEdit::textChanged, passAndPinReset);
+    connect(passConfirmField, &QLineEdit::textChanged, passAndPinReset);
+    connect(tpinField, &QLineEdit::textChanged, passAndPinReset);
 
     //-------------------------------------------------------------------------------------
     // connect(mobileNoField,&QLineEdit::,[this](){
@@ -247,6 +258,7 @@ void SignupWindow::handleSignup(){
     QString mobileNo = mobileNoField->text().trimmed();
     QString password = passField->text().trimmed();
     QString confirmPass = passConfirmField->text().trimmed();
+    QString tpin = tpinField->text();
 
     // Regex Expressions
     // This forces 2-30 characters while allowing spaces, hyphens, and apostrophes
@@ -375,7 +387,17 @@ void SignupWindow::handleSignup(){
         return;
     }
 
-    if(db.registerUser(firstName,lastName,userName,email,password,mobileNo)){
+    if (tpin.isEmpty() || tpin.length() < 4){
+        statusLabel->setText("Please enter a valid PIN");
+        statusLabel->setStyleSheet("color: #FF4D4D;");
+
+        tpinField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        statusLabel->show();
+        return;
+    }
+
+    if(db.registerUser(firstName,lastName,userName,email,password,mobileNo,tpin)){
         int id = db.getUserid(userName);
         if (id != -1){
             db.createAccount(id,"PKR");
@@ -400,7 +422,7 @@ void SignupWindow::resetForm(){
     // 1. Group all fields
     QList<QLineEdit*> fields = {
       firstNameField, lastNameField, userNameField,
-      emailField, mobileNoField, passField, passConfirmField
+      emailField, mobileNoField, passField, passConfirmField,tpinField
     };
 
     // 2. Clear text and reset styles

@@ -320,6 +320,7 @@ const QString BasePage::darkEmeraldTheme = R"(
 )";
 
 BasePage::BasePage(QWidget *parent) : QWidget(parent) {
+    qDebug() <<"BasePage: " << &db;
     if (!db.connectDB()) {
         qDebug() << "BasePage: Failed to connect to Database";
     }
