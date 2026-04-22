@@ -236,22 +236,30 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
         connect(dialog,&TransactionDialog::updateBalance,[this](){
             updateBalance(m_session);
         });
+
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
     });
     connect(transferBtn,&QPushButton::clicked,[this](){
         dialog = new TransactionDialog(TRANSFER,m_session);
         dialog->setModal(true);
         dialog->show();
+
         connect(dialog,&TransactionDialog::updateBalance,[this](){
             updateBalance(m_session);
         });
+
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
     });
     connect(withdrawBtn,&QPushButton::clicked,[this](){
         dialog = new TransactionDialog(WITHDRAW,m_session);
         dialog->setModal(true);
         dialog->show();
+
         connect(dialog,&TransactionDialog::updateBalance,[this](){
             updateBalance(m_session);
         });
+
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
     });
 }
 
