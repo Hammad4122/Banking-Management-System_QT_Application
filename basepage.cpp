@@ -140,12 +140,12 @@ const QString BasePage::lightBlueTheme = R"(
 
     #userGreetingLabel {font-size: 18px;color: #273671;}
 
-    #dashCard {
+    #dashDebitCard {
         background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,stop:0 #4340EE, stop:1 #1511F3);
         border-radius: 25px;
     }
 
-    #dashCard QLabel {
+    #dashDebitCard QLabel {
         color: white;
     }
 

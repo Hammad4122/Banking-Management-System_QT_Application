@@ -162,13 +162,16 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     contentContainer->setObjectName("contentContainer");
     QVBoxLayout *containerLayout = new QVBoxLayout(contentContainer);
 
+    // Cards H Layout container
+    QHBoxLayout *cardHLayout = new QHBoxLayout();
+    cardHLayout->setSpacing(10);
 
     // -- Credit Card Widget --
-    QWidget *card = new QWidget();
-    card->setObjectName("dashCard");
-    card->setFixedSize(350,220);
+    QWidget *debitCard = new QWidget();
+    debitCard->setObjectName("dashDebitCard");
+    debitCard->setFixedSize(350,220);
     // Credit Card Layout
-    QVBoxLayout *mainCardLayout = new QVBoxLayout(card);
+    QVBoxLayout *mainCardLayout = new QVBoxLayout(debitCard);
     //Credit Card Chip
     creditChipLabel = new QLabel();
     QPixmap creditChipPixmap(":/resources/chip.png"); // Path from your .qrc
@@ -189,7 +192,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     mainCardLayout->addLayout(cardMiddle);
     mainCardLayout->addStretch();
     // -- Credit Card Higlight Section (Bottom) --
-    QWidget *cardHighlightSection = new QWidget(card); // Important: dashCard is the parent
+    QWidget *cardHighlightSection = new QWidget(debitCard); // Important: dashCard is the parent
     cardHighlightSection->setObjectName("cardHighlightSection");
     // Positioning it in the bottom section of the card.
     // For a 220 height card, The bottom 60 pixels is good.
@@ -203,14 +206,47 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     creditCircles->setPixmap(creditCirclePixMap.scaled(50,50,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     creditCircles->setContentsMargins(0,0,5,0);
 
-
     //Added card number and mastercard Circles in the higlight layout
     highlightLayout->addWidget(cardNumber,0,Qt::AlignLeft);
     highlightLayout->addWidget(creditCircles,0,Qt::AlignRight | Qt::AlignVCenter);
 
+    // Income Card
+    QWidget *incomeCard = new QWidget();
+    incomeCard->setObjectName("incomeCard");
+    incomeCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px;");
+    incomeCard->setFixedSize(250,220);
+    incomeCard->setContentsMargins(0,0,0,0);
+    QVBoxLayout *incomeCardLayout = new QVBoxLayout(incomeCard);
+
+    // Expense Card
+    QWidget *expenseCard = new QWidget();
+    expenseCard->setObjectName("expenseCard");
+    expenseCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px;");
+    expenseCard->setFixedSize(250,220);
+    expenseCard->setContentsMargins(0,0,0,0);
+    QVBoxLayout *expenseCardLayout = new QVBoxLayout(expenseCard);
+
+    // Income Card
+    QWidget *savingCard = new QWidget();
+    savingCard->setObjectName("savingCard");
+    savingCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px;");
+    savingCard->setFixedSize(250,220);
+    savingCard->setContentsMargins(0,0,0,0);
+    QVBoxLayout *savingCardLayout = new QVBoxLayout(savingCard);
+
+
+
+
+
+
+    // Adding Cards to the cardHLayout ptr
+    cardHLayout->addWidget(debitCard,0,Qt::AlignLeft);
+    cardHLayout->addWidget(incomeCard,1,Qt::AlignLeft);
+    cardHLayout->addWidget(expenseCard,2,Qt::AlignLeft);
+    cardHLayout->addWidget(savingCard,3,Qt::AlignLeft);
 
     // Added the card in the Container layout
-    containerLayout->addWidget(card);
+    containerLayout->addLayout(cardHLayout);
     containerLayout->addWidget(actionButtonsWidget);
     containerLayout->addStretch();
 

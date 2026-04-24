@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     stackedWidget->addWidget(dashboardPage); // Index 2
 
     // 4. Start with Login
-    stackedWidget->setCurrentIndex(0);  // Change back to 0
+    stackedWidget->setCurrentIndex(2);  // Change back to 0
 
     connect(signupPage, &SignupWindow::loginRequested,[this](){
         stackedWidget->setCurrentIndex(0);

@@ -25,6 +25,9 @@ private:
     QLabel* creditChipLabel;
     QLabel* creditCircles;
 
+    // Income Card Labels
+
+
     // User informations
 
     QLabel* userGreetFullNameLabel;
