@@ -165,8 +165,6 @@ const QString BasePage::lightBlueTheme = R"(
 
     }
 
-
-
 )";
 
 // The Black & Emerald Theme
@@ -271,12 +269,12 @@ const QString BasePage::darkEmeraldTheme = R"(
 
     #dashTitleLabel {font-size: 16px; color: #74DD90;}
 
-    #dashCard {
+    #dashDebitCard {
         background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,stop:0 #43A35F, stop:1 #2E7041);
         border-radius: 25px;
     }
 
-    #dashCard QLabel {
+    #dashDebitCard QLabel {
         color: #E8F5E9;
     }
 

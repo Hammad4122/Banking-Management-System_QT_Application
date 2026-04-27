@@ -213,34 +213,67 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     // Income Card
     QWidget *incomeCard = new QWidget();
     incomeCard->setObjectName("incomeCard");
-    incomeCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px;");
-    incomeCard->setFixedSize(250,220);
+    incomeCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px; padding: 10px; ");
+    incomeCard->setFixedSize(260,220);
     incomeCard->setContentsMargins(0,0,0,0);
     QVBoxLayout *incomeCardLayout = new QVBoxLayout(incomeCard);
 
     // Expense Card
     QWidget *expenseCard = new QWidget();
     expenseCard->setObjectName("expenseCard");
-    expenseCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px;");
-    expenseCard->setFixedSize(250,220);
+    expenseCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px; border: 1px solid #f0f0f0;");
+    expenseCard->setFixedSize(260,220);
     expenseCard->setContentsMargins(0,0,0,0);
     QVBoxLayout *expenseCardLayout = new QVBoxLayout(expenseCard);
 
-    // Income Card
+    // Saving Card
     QWidget *savingCard = new QWidget();
     savingCard->setObjectName("savingCard");
-    savingCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px;");
-    savingCard->setFixedSize(250,220);
+    savingCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px; border: 1px solid #f0f0f0;");
+    savingCard->setFixedSize(260,220);
     savingCard->setContentsMargins(0,0,0,0);
     QVBoxLayout *savingCardLayout = new QVBoxLayout(savingCard);
 
+    // Income Card Labels
+    incomeTitleLabel = new QLabel("Income");
+    incomeTitleLabel->setStyleSheet("color: #718096; font-weight: 600; font-size: 14px;");
+    incomeAmountLabel = new QLabel();
+    incomeAmountLabel->setStyleSheet("color: #1a202c; font-weight: bold; font-size: 24px;");
+
+    // Expense Card Labels
+    expenseTitleLabel = new QLabel("Expense");
+    expenseTitleLabel->setStyleSheet("color: #718096; font-weight: 600; font-size: 14px;");
+    expenseAmountLabel = new QLabel("10000$");
+    expenseAmountLabel->setStyleSheet("color: #1a202c; font-weight: bold; font-size: 24px;");
+
+    // Saving Card Labels
+    savingsTitleLabel = new QLabel("Savings");
+    savingsTitleLabel->setStyleSheet("color: #718096; font-weight: 600; font-size: 14px;");
+    savingsAmountLabel = new QLabel("20000$");
+    savingsAmountLabel->setStyleSheet("color: #1a202c; font-weight: bold; font-size: 24px;");
 
 
+    // Add Income Card Widgets
+    incomeCardLayout->addWidget(incomeTitleLabel);
+    incomeCardLayout->addStretch();
+    // incomeCardLayout->addSpacing(5);
+    incomeCardLayout->addWidget(incomeAmountLabel);
+    incomeCardLayout->addStretch();
 
+    // Add Expense Card Widgets
+    expenseCardLayout->addWidget(expenseTitleLabel);
+    expenseCardLayout->addStretch();
+    expenseCardLayout->addWidget(expenseAmountLabel);
+
+    // Add Income Card Widgets
+    savingCardLayout->addWidget(savingsTitleLabel);
+    savingCardLayout->addStretch();
+    savingCardLayout->addWidget(savingsAmountLabel);
 
 
     // Adding Cards to the cardHLayout ptr
     cardHLayout->addWidget(debitCard,0,Qt::AlignLeft);
+    cardHLayout->addSpacing(17);
     cardHLayout->addWidget(incomeCard,1,Qt::AlignLeft);
     cardHLayout->addWidget(expenseCard,2,Qt::AlignLeft);
     cardHLayout->addWidget(savingCard,3,Qt::AlignLeft);
@@ -305,6 +338,8 @@ void DashboardWindow::initializeDashboard(UserSessionHandler* session){
     usernameLabel->setText(session->getUsername());
     userEmail->setText(session->getEmail());
     userMobileNO->setText(session->getMobileNo());
+    incomeAmountLabel->setText("$" + QString::number(session->getIncome(),'f',2));
+    // expenseAmountLabel->setText(QString::number(session->getExpense()));
 
     // 1. Initialize the locale (English format provides the commas you see in banking apps)
     QLocale locale(QLocale::English);
@@ -345,4 +380,5 @@ void DashboardWindow::updateBalance(UserSessionHandler *session){
                              "<span style='font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.5);'>Balance</span><br>"
                              "<span style='font-size: 20px; font-weight: bold; color: white;'>$%1</span>"
                              ).arg(formattedBalance));
+    incomeAmountLabel->setText("$" + QString::number(db.getIncome(session->getAccountID()),'f',2));
 }

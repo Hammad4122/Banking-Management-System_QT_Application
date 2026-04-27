@@ -22,11 +22,20 @@ private:
     QPushButton *settingBtn;
     QPushButton *notificationBtn;
     QPushButton *logoutBtn;
-    QLabel* creditChipLabel;
-    QLabel* creditCircles;
+    QLabel *creditChipLabel;
+    QLabel *creditCircles;
 
     // Income Card Labels
+    QLabel *incomeTitleLabel;
+    QLabel *incomeAmountLabel;
 
+    // Expense Card Labels
+    QLabel *expenseTitleLabel;
+    QLabel *expenseAmountLabel;
+
+    // Saving Card Labels
+    QLabel *savingsTitleLabel;
+    QLabel *savingsAmountLabel;
 
     // User informations
 

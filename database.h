@@ -33,6 +33,7 @@ public:
     bool createAccount(int userId,const QString& currency = "PKR");
     double getBalance(int accountId);
     int getUserid(const QString &username);
+    int getAccountID(int id);
 
     // --- Financial Transactions ---
     // Matches 'Transactions' table
@@ -43,9 +44,11 @@ public:
     // --- Data Retrieval ---
     // To fetch the list of transactions for a user's statement
     void getTransactionHistory(int accountId);
+    double getIncome(int accountID);
+    double getExpenses(int accountID);
 
     // --- User Information ---
-    UserSessionHandler* setUserInfo(int id);
+    UserSessionHandler* setUserInfo(int id,int accountID);
 
     // -- Auth Transaction --
     bool authTransaction(int id, const QString& tpin);

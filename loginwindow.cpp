@@ -146,9 +146,10 @@ void LoginWindow::handleLogin() {
     // (In the future, 'db.loginUser(user, pass)' will replace this part)
     if (db.userExist(user)) {
         int id = db.loginUser(user,pass);
+        int accountID = db.getAccountID(id);
         if (id != -1) {
             QMessageBox::information(this, "Login", "Login Successful");
-            UserSessionHandler* session = db.setUserInfo(id);
+            UserSessionHandler* session = db.setUserInfo(id,accountID);
             emit loginSuccessful(session);
         } else {
             statusLabel->setText("Incorrect Password. Please try again.");

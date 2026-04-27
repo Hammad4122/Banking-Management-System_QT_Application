@@ -14,13 +14,18 @@ private:
     QString userMobileNO;
     int userAccountID;
     double userBalance;
+    double userIncome;
+    double userExpense;
+
 public:
     UserSessionHandler();
     UserSessionHandler(int id, QString firstName,QString lastName,
-                       QString username,QString email, QString mobileNo, int accountId, double balance):
+                       QString username,QString email, QString mobileNo, int accountId, double balance,
+                       double income):
 
                         userId(id),userfirstName(firstName),userlastName(lastName),userName(username),
-        userEmail(email),userMobileNO(mobileNo),userAccountID(accountId), userBalance(balance) {};
+        userEmail(email),userMobileNO(mobileNo),userAccountID(accountId), userBalance(balance),
+        userIncome(income) {};
 
     // --- Getters ---
 
@@ -28,6 +33,8 @@ public:
     int getUserId() const { return userId; }
     int getAccountID() const { return userAccountID; }
     double getBalance() const { return userBalance; }
+    double getIncome() const { return userIncome; }
+    // double getExpense() const { return userExpense; }
     void setBalance(double);
 
     // Return by const reference for strings (Industry Standard for performance)

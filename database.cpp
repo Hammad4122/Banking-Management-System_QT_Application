@@ -283,6 +283,22 @@ void BankDB::getTransactionHistory(int accountId) {
     }
 }
 
+double BankDB::getIncome(int accountID){
+    QSqlQuery query;
+    // Remove the quotes around the second ?
+    query.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
+    query.addBindValue(accountID);
+    query.addBindValue("Deposit");
+
+    if (query.exec() && query.next()){
+        // If there are no transactions, SUM() returns NULL.
+        // toDouble() will safely turn NULL into 0.0
+        return query.value(0).toDouble();
+    }
+
+    return 0.0; // Return 0 instead of -1 so your UI doesn't show "$-1.00"
+}
+
 bool BankDB::initializeSchema() {
     QSqlQuery query;
 
@@ -350,9 +366,11 @@ bool BankDB::initializeSchema() {
     return true;
 }
 
-UserSessionHandler* BankDB::setUserInfo(int id){
+UserSessionHandler* BankDB::setUserInfo(int id, int accountID) {
     QSqlQuery query;
+    QSqlQuery incomeQuery;
 
+    // FIX 1: Removed sum(t.amount) and table 't' which caused the binding error
     QString sql = "SELECT "
                   "u.user_id, u.first_name, u.last_name, u.user_name, u.email, u.mobile_no, "
                   "a.account_id, a.balance "
@@ -363,7 +381,19 @@ UserSessionHandler* BankDB::setUserInfo(int id){
     query.prepare(sql);
     query.addBindValue(id);
 
-    if (query.exec() && query.next()) {
+    // FIX 2: Standard income query (Ensured NO single quotes around ?)
+    incomeQuery.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
+    incomeQuery.addBindValue(accountID);
+    incomeQuery.addBindValue("Deposit");
+
+    // Execute both
+    bool userOk = query.exec() && query.next();
+    bool incomeOk = incomeQuery.exec() && incomeQuery.next();
+
+    if (userOk && incomeOk) {
+        // Safe check: If SUM() is NULL (no deposits), toDouble() returns 0.0
+        double totalIncome = incomeQuery.value(0).toDouble();
+
         UserSessionHandler* userSession = new UserSessionHandler(
             query.value("user_id").toInt(),
             query.value("first_name").toString(),
@@ -372,13 +402,28 @@ UserSessionHandler* BankDB::setUserInfo(int id){
             query.value("email").toString(),
             query.value("mobile_no").toString(),
             query.value("account_id").toInt(),
-            query.value("balance").toDouble()
+            query.value("balance").toDouble(),
+            totalIncome // Passing the result from the second query
             );
         return userSession;
     } else {
-        qDebug() << "Error: User or Account details not found for ID:" << id;
+        qDebug() << "Error executing queries for ID:" << id;
+        if (query.lastError().isValid()) qDebug() << "User Query Error:" << query.lastError().text();
+        if (incomeQuery.lastError().isValid()) qDebug() << "Income Query Error:" << incomeQuery.lastError().text();
     }
     return nullptr;
+}
+
+
+int BankDB::getAccountID(int id){
+    QSqlQuery query;
+    query.prepare("SELECT account_id FROM Accounts WHERE user_id = ?");
+    query.addBindValue(id);
+
+    if (query.exec() && query.next()){
+        return query.value(0).toInt();
+    }
+    return -1;
 }
 
 bool BankDB::authTransaction(int id, const QString &tpin) {
