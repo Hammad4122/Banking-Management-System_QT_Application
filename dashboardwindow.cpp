@@ -5,7 +5,7 @@
 #include <QLocale>
 #include "transactiondialog.h"
 
-// Title Color: #343C6A
+// Title Color: #343C6A --
 
 DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
 
