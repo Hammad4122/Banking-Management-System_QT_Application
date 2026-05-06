@@ -213,7 +213,6 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     // Income Card
     QWidget *incomeCard = new QWidget();
     incomeCard->setObjectName("incomeCard");
-    incomeCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px; padding: 10px; ");
     incomeCard->setFixedSize(260,220);
     incomeCard->setContentsMargins(0,0,0,0);
     QVBoxLayout *incomeCardLayout = new QVBoxLayout(incomeCard);
@@ -221,7 +220,6 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     // Expense Card
     QWidget *expenseCard = new QWidget();
     expenseCard->setObjectName("expenseCard");
-    expenseCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px; border: 1px solid #f0f0f0;");
     expenseCard->setFixedSize(260,220);
     expenseCard->setContentsMargins(0,0,0,0);
     QVBoxLayout *expenseCardLayout = new QVBoxLayout(expenseCard);
@@ -229,7 +227,6 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     // Saving Card
     QWidget *savingCard = new QWidget();
     savingCard->setObjectName("savingCard");
-    savingCard->setStyleSheet("background-color: #FFFFFF;border-radius: 20px; border: 1px solid #f0f0f0;");
     savingCard->setFixedSize(260,220);
     savingCard->setContentsMargins(0,0,0,0);
     QVBoxLayout *savingCardLayout = new QVBoxLayout(savingCard);
@@ -255,20 +252,18 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
 
     // Add Income Card Widgets
     incomeCardLayout->addWidget(incomeTitleLabel);
-    incomeCardLayout->addStretch();
-    // incomeCardLayout->addSpacing(5);
     incomeCardLayout->addWidget(incomeAmountLabel);
     incomeCardLayout->addStretch();
 
     // Add Expense Card Widgets
     expenseCardLayout->addWidget(expenseTitleLabel);
-    expenseCardLayout->addStretch();
     expenseCardLayout->addWidget(expenseAmountLabel);
+    expenseCardLayout->addStretch();
 
     // Add Income Card Widgets
     savingCardLayout->addWidget(savingsTitleLabel);
-    savingCardLayout->addStretch();
     savingCardLayout->addWidget(savingsAmountLabel);
+    savingCardLayout->addStretch();
 
 
     // Adding Cards to the cardHLayout ptr
@@ -339,9 +334,9 @@ void DashboardWindow::initializeDashboard(UserSessionHandler* session){
     userEmail->setText(session->getEmail());
     userMobileNO->setText(session->getMobileNo());
     incomeAmountLabel->setText("$" + QString::number(session->getIncome(),'f',2));
-    // expenseAmountLabel->setText(QString::number(session->getExpense()));
+    expenseAmountLabel->setText("$" + QString::number(session->getExpense(),'f',2));
 
-    // 1. Initialize the locale (English format provides the commas you see in banking apps)
+    // 1. Initialize the locale (English format provides the commas seen in banking apps)
     QLocale locale(QLocale::English);
     // 2. Format the balance into a string with commas and 2 decimal places
     QString formattedBalance = locale.toString(session->getBalance(), 'f', 2);
@@ -381,4 +376,5 @@ void DashboardWindow::updateBalance(UserSessionHandler *session){
                              "<span style='font-size: 20px; font-weight: bold; color: white;'>$%1</span>"
                              ).arg(formattedBalance));
     incomeAmountLabel->setText("$" + QString::number(db.getIncome(session->getAccountID()),'f',2));
+    expenseAmountLabel->setText("$" + QString::number(db.getExpenses(session->getAccountID()),'f',2));
 }

@@ -160,9 +160,10 @@ const QString BasePage::lightBlueTheme = R"(
         background: transparent;
     }
 
-    /* Action Buttons */
-    #depositBtn,#transferBtn,#withdrawBtn {
-
+    #incomeCard,#expenseCard,#savingCard {
+        background-color: #FFFFFF;
+        border-radius: 20px;
+        padding: 10px;
     }
 
 )";
@@ -313,6 +314,12 @@ const QString BasePage::darkEmeraldTheme = R"(
     #settingBtn:pressed, #notificationBtn:pressed {
         background-color: #3D3D3D;
         margin-top: 0px;
+    }
+
+    #incomeCard,#expenseCard,#savingCard {
+        background-color: #161A1E;
+        border-radius: 20px;
+        padding: 30px;
     }
 
 )";

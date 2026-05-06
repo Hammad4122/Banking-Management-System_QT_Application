@@ -296,7 +296,22 @@ double BankDB::getIncome(int accountID){
         return query.value(0).toDouble();
     }
 
-    return 0.0; // Return 0 instead of -1 so your UI doesn't show "$-1.00"
+    return 0.0; // Return 0 instead of -1 so UI doesn't show "$-1.00"
+}
+
+double BankDB::getExpenses(int accountID){
+    QSqlQuery query;
+    query.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
+    query.addBindValue(accountID);
+    query.addBindValue("Withdraw");
+
+    if (query.exec() && query.next()){
+        // If there are no transactions, SUM() returns NULL.
+        // toDouble() will safely turn NULL into 0.0
+        return query.value(0).toDouble();
+    }
+
+    return 0.0;
 }
 
 bool BankDB::initializeSchema() {
@@ -369,6 +384,7 @@ bool BankDB::initializeSchema() {
 UserSessionHandler* BankDB::setUserInfo(int id, int accountID) {
     QSqlQuery query;
     QSqlQuery incomeQuery;
+    QSqlQuery expenseQuery;
 
     // FIX 1: Removed sum(t.amount) and table 't' which caused the binding error
     QString sql = "SELECT "
@@ -386,13 +402,20 @@ UserSessionHandler* BankDB::setUserInfo(int id, int accountID) {
     incomeQuery.addBindValue(accountID);
     incomeQuery.addBindValue("Deposit");
 
+    // Standard expense query
+    expenseQuery.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
+    expenseQuery.addBindValue(accountID);
+    expenseQuery.addBindValue("Withdrawal");
+
     // Execute both
     bool userOk = query.exec() && query.next();
     bool incomeOk = incomeQuery.exec() && incomeQuery.next();
+    bool expenseOk = expenseQuery.exec() && expenseQuery.next();
 
-    if (userOk && incomeOk) {
+    if (userOk && incomeOk && expenseOk) {
         // Safe check: If SUM() is NULL (no deposits), toDouble() returns 0.0
         double totalIncome = incomeQuery.value(0).toDouble();
+        double totalExpense = expenseQuery.value(0).toDouble();
 
         UserSessionHandler* userSession = new UserSessionHandler(
             query.value("user_id").toInt(),
@@ -403,7 +426,8 @@ UserSessionHandler* BankDB::setUserInfo(int id, int accountID) {
             query.value("mobile_no").toString(),
             query.value("account_id").toInt(),
             query.value("balance").toDouble(),
-            totalIncome // Passing the result from the second query
+            totalIncome,
+            totalExpense// Passing the result from the second query
             );
         return userSession;
     } else {
