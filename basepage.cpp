@@ -319,7 +319,7 @@ const QString BasePage::darkEmeraldTheme = R"(
     #incomeCard,#expenseCard,#savingCard {
         background-color: #161A1E;
         border-radius: 20px;
-        padding: 30px;
+        padding: 10px;
     }
 
 )";
