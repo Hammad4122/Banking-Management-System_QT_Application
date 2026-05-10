@@ -33,10 +33,6 @@ private:
     QLabel *expenseTitleLabel;
     QLabel *expenseAmountLabel;
 
-    // Saving Card Labels
-    QLabel *savingsTitleLabel;
-    QLabel *savingsAmountLabel;
-
     // User informations
 
     QLabel* userGreetFullNameLabel;

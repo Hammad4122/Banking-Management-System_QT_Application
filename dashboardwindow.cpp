@@ -213,23 +213,16 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     // Income Card
     QWidget *incomeCard = new QWidget();
     incomeCard->setObjectName("incomeCard");
-    incomeCard->setFixedSize(260,220);
+    incomeCard->setFixedSize(395,220);
     incomeCard->setContentsMargins(0,0,0,0);
     QVBoxLayout *incomeCardLayout = new QVBoxLayout(incomeCard);
 
     // Expense Card
     QWidget *expenseCard = new QWidget();
     expenseCard->setObjectName("expenseCard");
-    expenseCard->setFixedSize(260,220);
+    expenseCard->setFixedSize(395,220);
     expenseCard->setContentsMargins(0,0,0,0);
     QVBoxLayout *expenseCardLayout = new QVBoxLayout(expenseCard);
-
-    // Saving Card
-    QWidget *savingCard = new QWidget();
-    savingCard->setObjectName("savingCard");
-    savingCard->setFixedSize(260,220);
-    savingCard->setContentsMargins(0,0,0,0);
-    QVBoxLayout *savingCardLayout = new QVBoxLayout(savingCard);
 
     // Income Card Labels
     incomeTitleLabel = new QLabel("Income");
@@ -243,13 +236,6 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     expenseAmountLabel = new QLabel("10000$");
     expenseAmountLabel->setStyleSheet("color: #1a202c; font-weight: bold; font-size: 24px;");
 
-    // Saving Card Labels
-    savingsTitleLabel = new QLabel("Savings");
-    savingsTitleLabel->setStyleSheet("color: #718096; font-weight: 600; font-size: 14px;");
-    savingsAmountLabel = new QLabel("20000$");
-    savingsAmountLabel->setStyleSheet("color: #1a202c; font-weight: bold; font-size: 24px;");
-
-
     // Add Income Card Widgets
     incomeCardLayout->addWidget(incomeTitleLabel);
     incomeCardLayout->addWidget(incomeAmountLabel);
@@ -260,18 +246,11 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     expenseCardLayout->addWidget(expenseAmountLabel);
     expenseCardLayout->addStretch();
 
-    // Add Income Card Widgets
-    savingCardLayout->addWidget(savingsTitleLabel);
-    savingCardLayout->addWidget(savingsAmountLabel);
-    savingCardLayout->addStretch();
-
-
     // Adding Cards to the cardHLayout ptr
     cardHLayout->addWidget(debitCard,0,Qt::AlignLeft);
     cardHLayout->addSpacing(17);
     cardHLayout->addWidget(incomeCard,1,Qt::AlignLeft);
     cardHLayout->addWidget(expenseCard,2,Qt::AlignLeft);
-    cardHLayout->addWidget(savingCard,3,Qt::AlignLeft);
 
     // Added the card in the Container layout
     containerLayout->addLayout(cardHLayout);

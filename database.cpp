@@ -303,7 +303,7 @@ double BankDB::getExpenses(int accountID){
     QSqlQuery query;
     query.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
     query.addBindValue(accountID);
-    query.addBindValue("Withdraw");
+    query.addBindValue("Withdrawal");
 
     if (query.exec() && query.next()){
         // If there are no transactions, SUM() returns NULL.
