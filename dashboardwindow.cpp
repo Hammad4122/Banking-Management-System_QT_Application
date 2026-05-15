@@ -3,6 +3,8 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QLocale>
+#include <qheaderview.h>
+#include <qtableview.h>
 #include "transactiondialog.h"
 
 // Title Color: #343C6A --
@@ -42,7 +44,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     // -- User Image --
     userImgLabel = new QLabel();
     // 1. Load your pixmap
-    QPixmap originalPixmap(":/resources/my_pic.png");
+    QPixmap originalPixmap(":/resources/user.png");
     int size = 50; // Your desired size
     // 2. Prepare a transparent pixmap for the circle
     QPixmap rounded(size, size);
@@ -158,9 +160,10 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     // The "Content Host"
     // This is the widget that will hold content seperately
     QWidget *contentContainer = new QWidget();
-    contentContainer->setFixedSize(1200,470);
+    contentContainer->setFixedSize(1200,490);
     contentContainer->setObjectName("contentContainer");
     QVBoxLayout *containerLayout = new QVBoxLayout(contentContainer);
+    containerLayout->setContentsMargins(10,10,10,0);
 
     // Cards H Layout container
     QHBoxLayout *cardHLayout = new QHBoxLayout();
@@ -228,13 +231,30 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     incomeTitleLabel = new QLabel("Income");
     incomeTitleLabel->setStyleSheet("color: #718096; font-weight: 600; font-size: 14px;");
     incomeAmountLabel = new QLabel();
-    incomeAmountLabel->setStyleSheet("color: #1a202c; font-weight: bold; font-size: 24px;");
+    incomeAmountLabel->setObjectName("incomeAmountLabel");
 
     // Expense Card Labels
     expenseTitleLabel = new QLabel("Expense");
     expenseTitleLabel->setStyleSheet("color: #718096; font-weight: 600; font-size: 14px;");
-    expenseAmountLabel = new QLabel("10000$");
-    expenseAmountLabel->setStyleSheet("color: #1a202c; font-weight: bold; font-size: 24px;");
+    expenseAmountLabel = new QLabel();
+    expenseAmountLabel->setObjectName("expenseAmountLabel");
+
+    // Create the table view
+    transactionTable = new QTableView(this);
+    transactionTable->setObjectName("transactionTable");
+
+    // UI Settings for a clean banking table
+    transactionTable->setFixedHeight(210);
+    transactionTable->setSelectionBehavior(QAbstractItemView::SelectRows); // Select entire row
+    transactionTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    transactionTable->setEditTriggers(QAbstractItemView::NoEditTriggers);  // Make it read-only
+    transactionTable->setShowGrid(false);                                  // Hide harsh gridlines
+    transactionTable->verticalHeader()->setVisible(true);                 // Hide row numbers
+    transactionTable->setFocusPolicy(Qt::NoFocus);
+
+    // Make columns stretch to fill the width of the window
+    transactionTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
 
     // Add Income Card Widgets
     incomeCardLayout->addWidget(incomeTitleLabel);
@@ -255,6 +275,7 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     // Added the card in the Container layout
     containerLayout->addLayout(cardHLayout);
     containerLayout->addWidget(actionButtonsWidget);
+    containerLayout->addWidget(transactionTable);
     containerLayout->addStretch();
 
 
@@ -340,6 +361,9 @@ void DashboardWindow::initializeDashboard(UserSessionHandler* session){
 
     cardNumber->setText("5123  **** **** 8892");
     cardNumber->setStyleSheet("font-weight: 600;font-size: 20px;font: 'roboto';");
+
+    // Set up the table data
+    transactionTable->setModel(db.getTransactionHistory(session->getAccountID()));
 }
 
 void DashboardWindow::updateBalance(UserSessionHandler *session){
@@ -356,4 +380,5 @@ void DashboardWindow::updateBalance(UserSessionHandler *session){
                              ).arg(formattedBalance));
     incomeAmountLabel->setText("$" + QString::number(db.getIncome(session->getAccountID()),'f',2));
     expenseAmountLabel->setText("$" + QString::number(db.getExpenses(session->getAccountID()),'f',2));
+    transactionTable->setModel(db.getTransactionHistory(session->getAccountID()));
 }

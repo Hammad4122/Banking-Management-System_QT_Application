@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QCryptographicHash>
+#include <QSqlQueryModel>
 
 // --- Database Lifecycle ---
 
@@ -263,24 +264,23 @@ bool BankDB::transfer(int senderId, int receiverId, double amount, const QString
 }
 
 // --- Data Retrieval ---
+QSqlQueryModel* BankDB::getTransactionHistory(int accountId) {
+    QSqlQueryModel *model = new QSqlQueryModel();
 
-void BankDB::getTransactionHistory(int accountId) {
     QSqlQuery query;
-    query.prepare("SELECT transaction_type, amount, balance_after, transaction_date, remarks "
-                  "FROM Transactions WHERE account_id = ? ORDER BY transaction_date DESC");
+    // Selecting and renaming columns for clean headers in the UI
+    query.prepare("SELECT transaction_date AS \"Date\", "
+                  "transaction_type AS \"Type\", "
+                  "'$' + CAST(amount AS VARCHAR(20)) AS \"Amount\", "
+                  "remarks as \"Remarks\" "
+                  "FROM Transactions "
+                  "WHERE account_id = ? "
+                  "ORDER BY transaction_date DESC"); // Newest first
     query.addBindValue(accountId);
+    query.exec();
 
-    if (query.exec()) {
-        while (query.next()) {
-            QString type = query.value(0).toString();
-            double amt = query.value(1).toDouble();
-            double bal = query.value(2).toDouble();
-            QString date = query.value(3).toDateTime().toString("yyyy-MM-dd hh:mm:ss");
-            QString rem = query.value(4).toString();
-
-            qDebug() << date << "|" << type << "| Amount:" << amt << "| Balance:" << bal << "| Note:" << rem;
-        }
-    }
+    model->setQuery(std::move(query));
+    return model;
 }
 
 double BankDB::getIncome(int accountID){

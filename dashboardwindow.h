@@ -5,6 +5,7 @@
 #include "transactiondialog.h"
 #include <qmainwindow.h>
 #include <QLabel>
+#include <qtableview.h>
 class DashboardWindow: public BasePage
 {
     Q_OBJECT
@@ -55,6 +56,9 @@ private:
     TransactionDialog* dialog;
 
     void updateBalance(UserSessionHandler*);
+
+    // Transaction Table
+    QTableView *transactionTable;
 };
 
 #endif // DASHBOARD_H

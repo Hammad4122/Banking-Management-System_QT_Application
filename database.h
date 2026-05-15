@@ -7,6 +7,7 @@
 #include <QString>
 #include <QVariant>
 #include <QVector>
+#include <qsqlquerymodel.h>
 
 class BankDB {
 private:
@@ -43,7 +44,7 @@ public:
 
     // --- Data Retrieval ---
     // To fetch the list of transactions for a user's statement
-    void getTransactionHistory(int accountId);
+    QSqlQueryModel* getTransactionHistory(int accountId);
     double getIncome(int accountID);
     double getExpenses(int accountID);
 

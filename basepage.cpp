@@ -166,6 +166,39 @@ const QString BasePage::lightBlueTheme = R"(
         padding: 10px;
     }
 
+    #incomeAmountLabel,#expenseAmountLabel {
+        color: #1a202c; font-weight: bold; font-size: 24px;
+    }
+
+    #transactionTable {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        alternate-background-color: #F8FAFC; /* Subtle zebra striping */
+    }
+
+    /* Styles the annoying top-left corner block where headers meet */
+    QTableCornerButton::section {
+        background-color: #F8FAFC;         /* Matches your horizontal header color */
+        border: none;
+        border-bottom: 1px solid #E2E8F0;  /* Keeps the bottom border line fluid */
+    }
+
+    QHeaderView::section {
+        background-color: #F8FAFC;
+        color: #718096;
+        padding: 10px;
+        font-weight: 600;
+        border: none;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    QTableView::item {
+        padding: 12px;
+        color: #1A202C;
+        border-bottom: 1px solid #F1F5F9; /* Muted separator line */
+    }
+
 )";
 
 // The Black & Emerald Theme
@@ -320,6 +353,39 @@ const QString BasePage::darkEmeraldTheme = R"(
         background-color: #161A1E;
         border-radius: 20px;
         padding: 10px;
+    }
+
+    #incomeAmountLabel,#expenseAmountLabel {
+        color: #8295B3; font-weight: bold; font-size: 24px;
+    }
+
+    #transactionTable {
+        background-color: #0B0E11;
+        border: 1px solid #161A1E;
+        border-radius: 12px;
+        alternate-background-color: #161A1E; /* Subtle zebra striping */
+    }
+
+    /* Styles the annoying top-left corner block where headers meet */
+    QTableCornerButton::section {
+        background-color: #0B0E11;         /* Matches your horizontal header color */
+        border: none;
+        border-bottom: 1px solid #161A1E;  /* Keeps the bottom border line fluid */
+    }
+
+    QHeaderView::section {
+        background-color: #0B0E11;
+        color: #8295B3;
+        padding: 10px;
+        font-weight: 600;
+        border: none;
+        border-bottom: 1px solid #161A1E;
+    }
+
+    QTableView::item {
+        padding: 12px;
+        color: #8295B3;
+        border-bottom: 1px solid #161A1E; /* Muted separator line */
     }
 
 )";
