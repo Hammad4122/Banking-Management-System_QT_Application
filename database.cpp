@@ -31,10 +31,10 @@ bool BankDB::connectDB() {
     #else
         // Linux/Pop!_OS Configuration: Remote connection via IP using SQL Auth
         connStr = "Driver={ODBC Driver 18 for SQL Server};"
-                  "Server=192.168.10.8,1433;"
+                  "Server=;"
                   "Database=BankDB;"
-                  "UID=sa;"
-                  "PWD=BMS@2026;" // Use the password you set in SSMS
+                  "UID=;"
+                  "PWD=;" // Use the password you set in SSMS
                   "Encrypt=yes;"
                   "TrustServerCertificate=yes;";
     #endif
