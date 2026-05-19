@@ -7,34 +7,51 @@ A desktop banking application built with **C++**, **Qt6**, and **Microsoft SQL S
 ## 📸 Screenshots
 
 | Login Page |
+|---|
 <img width="899" height="472" alt="Screenshot 2026-05-15 232201" src="https://github.com/user-attachments/assets/4ec36ae8-d69d-474a-938f-474a9173c8a6" />
 <img width="899" height="472" alt="Screenshot 2026-05-15 232229" src="https://github.com/user-attachments/assets/625d5e10-a09a-4402-8270-c145347725a1" />
 
+
 | Signup Page |
+|---|
 <img width="899" height="471" alt="Screenshot 2026-05-15 232304" src="https://github.com/user-attachments/assets/3669fbaa-9f09-4a56-8a06-01ea9ab177fc" />
 <img width="897" height="473" alt="image" src="https://github.com/user-attachments/assets/b6568e56-fd1f-473b-a2c7-2d5b1bef7704" />
 
-| Dashboard |
 
+| Dashboard |
+|---|
 <img width="898" height="473" alt="Screenshot 2026-05-15 231040" src="https://github.com/user-attachments/assets/f3b189c9-9e74-4001-9aac-ee31a48f5af9" />
 <img width="897" height="472" alt="Screenshot 2026-05-15 231112" src="https://github.com/user-attachments/assets/2a7ae0e6-2de5-499e-8c42-3d4208c371cd" />
 
 
 | Transaction Dialog |
+|---|
 
   | Deposit Dialog |
+ 
   <img width="296" height="222" alt="Screenshot 2026-05-15 232421" src="https://github.com/user-attachments/assets/5d2640cf-ba5d-4dc6-b5c6-a8422e767a47" />
+  <img width="298" height="224" alt="image" src="https://github.com/user-attachments/assets/b7d1539f-b906-44ec-8331-34064a34621f" />
+
+
 
   | Transfer Dialog |
+  
   <img width="298" height="292" alt="Screenshot 2026-05-15 232449" src="https://github.com/user-attachments/assets/d903c514-8499-462c-8ebb-b0a46c437527" />
+  <img width="299" height="293" alt="image" src="https://github.com/user-attachments/assets/357af126-f1cd-486b-8efb-ab295df1fadd" />
 
 
+  
   | Withdraw Dialog |
+  
   <img width="296" height="222" alt="Screenshot 2026-05-15 232505" src="https://github.com/user-attachments/assets/f799c23f-08ad-4845-939a-9fcf1125bfb0" />
+  <img width="298" height="222" alt="image" src="https://github.com/user-attachments/assets/7b66e8d4-c7aa-4103-947a-534cfaeef91d" />
+
 
 | TPIN Verification |
 |---|
 <img width="221" height="155" alt="Screenshot 2026-05-15 232544" src="https://github.com/user-attachments/assets/be1df9bd-9290-4756-aa88-b9ac9b7f95bf" />
+<img width="224" height="155" alt="image" src="https://github.com/user-attachments/assets/3c1076e5-53a6-4344-afc0-dc4a92985020" />
+
 
 ---
 
@@ -356,7 +373,7 @@ make -j$(nproc)
 
 ## Author
 
-Developed by **Muhammad Hammad Ateeq**
+Developed by **Muhammad Hammad Ateeq & Muhammad Shayan Chaudhary**
 BSc Software Engineering — 2nd Semester
 `Bahria University, Islamabad`
 
@@ -364,4 +381,4 @@ BSc Software Engineering — 2nd Semester
 
 ## License
 
-This project is for educational purposes. All rights reserved by the author.
+This project is for educational purposes. All rights reserved by the authors.
