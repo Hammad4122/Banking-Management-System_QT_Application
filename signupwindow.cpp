@@ -379,7 +379,7 @@ void SignupWindow::handleSignup(){
 
         cnicField->setStyleSheet("border: 1.5px solid #FF4D4D;");
 
-        emailStatusLabel->show();
+        cnicStatusLabel->show();
         return;
     }
 
