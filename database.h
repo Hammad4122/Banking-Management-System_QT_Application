@@ -22,16 +22,17 @@ public:
     // --- User & Authentication ---
     // Matches 'Users' table
     bool registerUser(const QString& firstName,const QString& lastName,const QString& userName,
-                      const QString& email,const QString& password, QString& mobile,const QString &tpin);
+                      const QString& email,const QString& cnic,const QString& password, QString& mobile,const QString &tpin);
     int loginUser(const QString userName,const QString password);
     bool userExist(const QString &userName);
     bool emailExist(const QString &email);
+    bool cnicExist(const QString &cnic);
     bool mobileNoExist(const QString &mobileNo);
     bool accountExist(const QString &accountNo);
 
     // --- Account Operations ---
     // Matches 'Accounts' table
-    bool createAccount(int userId,const QString& currency = "PKR");
+    bool createAccount(int userId,const QString& currency = "USD");
     double getBalance(int accountId);
     int getUserid(const QString &username);
     int getAccountID(int id);

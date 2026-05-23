@@ -27,12 +27,14 @@ private:
     QLineEdit *passField;
     QLineEdit *passConfirmField;
     QLineEdit *tpinField;
+    QLineEdit *cnicField;
     QPushButton *signupBtn;
     QPushButton *loginLinkBtn;
     QLabel *statusLabel;
     QLabel *nameStatusLabel;
     QLabel *usernameStatusLabel;
     QLabel *emailStatusLabel;
+    QLabel *cnicStatusLabel;
     QLabel *mobileNoStatusLabel;
 
 

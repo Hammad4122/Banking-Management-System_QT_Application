@@ -21,13 +21,13 @@ MainWindow::MainWindow(QWidget *parent)
     // resize(1200,600);
     // setMinimumSize(400,300);
     // setMaximumSize(1500,800);
-    setWindowTitle("Banking Management System");
+    setWindowTitle("ApexVault-BMS");
 
     // 1. Create the Stacked Widget
     stackedWidget = new QStackedWidget(this);
     setCentralWidget(stackedWidget);
 
-    // 2. Create your pages
+    // 2. Create your pages (Composition)
     loginPage = new LoginWindow();
     signupPage = new SignupWindow();
     dashboardPage = new DashboardWindow();

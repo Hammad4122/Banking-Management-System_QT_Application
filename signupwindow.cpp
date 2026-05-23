@@ -30,7 +30,7 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     headerLayout->setSpacing(10); // Space between logo and text
 
     // Logo Title Label
-    logoTitleLabel = new QLabel("<b>Banking</b><br>Management System", this);
+    logoTitleLabel = new QLabel("ApexVault", this);
     logoTitleLabel->setObjectName("logoTitleLabel");
 
     // Theme Toggle Button
@@ -52,7 +52,7 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     // Signup Card Layout
     QVBoxLayout *cardLayout = new QVBoxLayout(card);
     cardLayout->setObjectName("cardLayout");
-    cardLayout->setContentsMargins(40,40,40,40);
+    cardLayout->setContentsMargins(40,20,40,20);
     cardLayout->setSpacing(15);
 
     signupTitle = new QLabel("Signup");
@@ -78,6 +78,12 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     userNameField->setPlaceholderText("Username");
     userNameField->setFixedHeight(45);
 
+    // User CNIC Field
+    cnicField = new QLineEdit();
+    cnicField->setPlaceholderText("CNIC eg. xxxxx-xxxxxxx-x");
+    cnicField->setFixedHeight(45);
+    cnicField->setMaxLength(15);
+
     // Email Input Field
     emailField = new QLineEdit();
     emailField->setPlaceholderText("eg. example@address.com");
@@ -87,7 +93,7 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     mobileNoField = new QLineEdit();
     mobileNoField->setFixedHeight(45);
     mobileNoField->setMaxLength(11);
-    mobileNoField->setPlaceholderText("03xxxxxxxxx");
+    mobileNoField->setPlaceholderText("Phone# eg. 03xxxxxxxxx");
 
     // Password Input Field
     passField = new QLineEdit();
@@ -148,6 +154,12 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     emailStatusLabel->setFixedHeight(15);
     emailStatusLabel->hide();
 
+    // CNIC Status Label
+    cnicStatusLabel = new QLabel("");
+    cnicStatusLabel->setObjectName("cnicStatusLabel");
+    cnicStatusLabel->setFixedHeight(15);
+    cnicStatusLabel->hide();
+
     // Mobile Number Status Label
     mobileNoStatusLabel = new QLabel("");
     mobileNoStatusLabel->setObjectName("mobileNoStatusLabel");
@@ -162,6 +174,8 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     cardLayout->addWidget(usernameStatusLabel);
     cardLayout->addWidget(emailField);
     cardLayout->addWidget(emailStatusLabel);
+    cardLayout->addWidget(cnicField);
+    cardLayout->addWidget(cnicStatusLabel);
     cardLayout->addWidget(mobileNoField);
     cardLayout->addWidget(mobileNoStatusLabel);
     cardLayout->addLayout(passHLayout);
@@ -171,9 +185,9 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     cardLayout->addWidget(statusLabel);
     cardLayout->addWidget(signupBtn);
     cardLayout->addWidget(loginLinkBtn);
-    cardLayout->addStretch();
-    mainLayout->addLayout(headerLayout);
+    // cardLayout->addStretch();
 
+    mainLayout->addLayout(headerLayout);
     mainLayout->addStretch();
     mainLayout->addWidget(card,0,Qt::AlignCenter);
     mainLayout->addStretch();
@@ -208,6 +222,7 @@ SignupWindow::SignupWindow(QWidget *parent): BasePage(parent) {
     fieldToLabel.insert(lastNameField, nameStatusLabel); // Both name fields use one label
     fieldToLabel.insert(userNameField, usernameStatusLabel);
     fieldToLabel.insert(emailField, emailStatusLabel);
+    fieldToLabel.insert(cnicField,cnicStatusLabel);
     fieldToLabel.insert(mobileNoField, mobileNoStatusLabel);
 
     // 2. Loop through the map to connect them all
@@ -249,12 +264,14 @@ void SignupWindow::handleSignup(){
     nameStatusLabel->hide();
     usernameStatusLabel->hide();
     emailStatusLabel->hide();
+    cnicStatusLabel->hide();
     mobileNoStatusLabel->hide();
 
     QString firstName = firstNameField->text().trimmed();
     QString lastName = lastNameField->text().trimmed();
     QString userName = userNameField->text().trimmed();
     QString email = emailField->text().trimmed();
+    QString cnic = cnicField->text().trimmed();
     QString mobileNo = mobileNoField->text().trimmed();
     QString password = passField->text().trimmed();
     QString confirmPass = passConfirmField->text().trimmed();
@@ -265,11 +282,12 @@ void SignupWindow::handleSignup(){
     QRegularExpression nameRegex("^(?=.{2,30}$)[A-Za-z]+(?:[ '-][A-Za-z]+)*$");
     QRegularExpression usernameRegex("^[a-zA-Z0-9_]{5,15}$");
     QRegularExpression emailRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    QRegularExpression cnicRegex("^\\d{5}-\\d{7}-\\d{1}$");
     QRegularExpression phoneRegex("^03[0-9]{9}$");
     QRegularExpression passRegex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d\\W_]{7,20}$");
 
     // Check for empty QString
-    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
+    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || cnic.isEmpty() ||
         mobileNo.isEmpty()  || password.isEmpty() || confirmPass.isEmpty())
     {
         statusLabel->setText("Fields cannot be empty.");
@@ -324,8 +342,8 @@ void SignupWindow::handleSignup(){
 
     // --Email--
     // Check for valid email
-    if (!emailRegex.match(email).hasMatch())
-    {   emailStatusLabel->setText("Invalid email format.");
+    if (!emailRegex.match(email).hasMatch()){
+        emailStatusLabel->setText("Invalid email format.");
         emailStatusLabel->setStyleSheet("color: #FF4D4D;");
 
         emailField->setStyleSheet("border: 1.5px solid #FF4D4D;");
@@ -340,6 +358,26 @@ void SignupWindow::handleSignup(){
         emailStatusLabel->setStyleSheet("color: #FF4D4D;");
 
         emailField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        emailStatusLabel->show();
+        return;
+    }
+
+    if (!cnicRegex.match(cnic).hasMatch()){
+        cnicStatusLabel->setText("Invalid cnic format.");
+        cnicStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        cnicField->setStyleSheet("border: 1.5px solid #FF4D4D;");
+
+        cnicStatusLabel->show();
+        return;
+    }
+
+    if (db.cnicExist(cnic)){
+        cnicStatusLabel->setText("This CNIC is already registered. Please login.");
+        cnicStatusLabel->setStyleSheet("color: #FF4D4D;");
+
+        cnicField->setStyleSheet("border: 1.5px solid #FF4D4D;");
 
         emailStatusLabel->show();
         return;
@@ -397,10 +435,10 @@ void SignupWindow::handleSignup(){
         return;
     }
 
-    if(db.registerUser(firstName,lastName,userName,email,password,mobileNo,tpin)){
+    if(db.registerUser(firstName,lastName,userName,email,cnic,password,mobileNo,tpin)){
         int id = db.getUserid(userName);
         if (id != -1){
-            db.createAccount(id,"PKR");
+            db.createAccount(id,"USD");
 
             QMessageBox::information(this, "Signup", "Account Created Successfully");
             qDebug() << "User Registered Successfully";
@@ -422,7 +460,7 @@ void SignupWindow::resetForm(){
     // 1. Group all fields
     QList<QLineEdit*> fields = {
       firstNameField, lastNameField, userNameField,
-      emailField, mobileNoField, passField, passConfirmField,tpinField
+      emailField, cnicField, mobileNoField, passField, passConfirmField,tpinField
     };
 
     // 2. Clear text and reset styles
@@ -436,6 +474,7 @@ void SignupWindow::resetForm(){
     nameStatusLabel->hide();
     usernameStatusLabel->hide();
     emailStatusLabel->hide();
+    cnicStatusLabel->hide();
     mobileNoStatusLabel->hide();
 
 };

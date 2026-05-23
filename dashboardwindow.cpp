@@ -35,6 +35,10 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     dashTitleLabel = new QLabel("BankDash.");
     dashTitleLabel->setObjectName("dashTitleLabel");
 
+    // User Account No Label
+    userAccountNo = new QLabel("");
+    userAccountNo->setObjectName("userAccountNoLabel");
+
     // Theme Toggle Button
     themeToggleBtn = new QPushButton("🌙");
     themeToggleBtn->setFixedSize(40,40);
@@ -144,6 +148,8 @@ DashboardWindow::DashboardWindow(QWidget *parent): BasePage(parent) {
     headerLayout->addWidget(dashTitleLabel,0,Qt::AlignLeft);
     headerLayout->setSpacing(20);
     headerLayout->addWidget(userGreetFullNameLabel,0,Qt::AlignLeft);
+    headerLayout->addStretch();
+    headerLayout->addWidget(userAccountNo);
     headerLayout->addStretch();
     headerLayout->addWidget(themeToggleBtn,-1,Qt::AlignRight);
     headerLayout->addSpacing(10);
@@ -333,6 +339,7 @@ void DashboardWindow::initializeDashboard(UserSessionHandler* session){
     usernameLabel->setText(session->getUsername());
     userEmail->setText(session->getEmail());
     userMobileNO->setText(session->getMobileNo());
+    userAccountNo->setText("Account No.: " + QString::number(session->getAccountID()));
     incomeAmountLabel->setText("$" + QString::number(session->getIncome(),'f',2));
     expenseAmountLabel->setText("$" + QString::number(session->getExpense(),'f',2));
 

@@ -37,6 +37,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         usersessionhandler.h usersessionhandler.cpp
         transactiondialog.h transactiondialog.cpp
         tpindialog.h tpindialog.cpp
+        userdashboardwindow.h userdashboardwindow.cpp
+        admindashboardwindow.h admindashboardwindow.cpp
     )
 else()
     if(ANDROID)

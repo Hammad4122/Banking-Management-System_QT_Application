@@ -84,7 +84,7 @@ const QString BasePage::lightBlueTheme = R"(
 
     /* Status/Error Labels (Specific & Generic) */
     #statusLabel, #nameStatusLabel, #usernameStatusLabel,
-    #emailStatusLabel, #mobileNoStatusLabel {
+    #emailStatusLabel, #mobileNoStatusLabel, #cnicStatusLabel {
         font-size: 13px;
         font-weight: normal;
         color: #FF4D4D; /* Red for errors */
@@ -139,6 +139,7 @@ const QString BasePage::lightBlueTheme = R"(
     #logoTitleLabel {font-size: 14px; color: #333; line-height: 1.2;}
 
     #userGreetingLabel {font-size: 18px;color: #273671;}
+    #userAccountNoLabel{font-size: 14px;color: #273671;}
 
     #dashDebitCard {
         background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,stop:0 #4340EE, stop:1 #1511F3);
@@ -231,7 +232,7 @@ const QString BasePage::darkEmeraldTheme = R"(
 
     /* Status/Error Labels */
     #statusLabel, #nameStatusLabel, #usernameStatusLabel,
-    #emailStatusLabel, #mobileNoStatusLabel {
+    #emailStatusLabel, #mobileNoStatusLabel, #cnicStatusLabel {
         font-size: 12px;
         font-weight: normal;
         color: #FF5555;
@@ -298,6 +299,7 @@ const QString BasePage::darkEmeraldTheme = R"(
     #logoTitleLabel {font-size: 14px; color: #caccca; line-height: 1.2;}
 
     #userGreetingLabel {font-size: 18px;color: #74DD90;}
+    #userAccountNoLabel{font-size: 14px;color: #74DD90;}
 
     #dashHeader {background-color: #161A1E;}
 

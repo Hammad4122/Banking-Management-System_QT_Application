@@ -68,13 +68,14 @@ bool BankDB::connectDB() {
 void BankDB::disconnectDB() {
     if (db.isOpen()) {
         db.close();
+        qDebug()<<"Database Disconnected";
     }
 }
 
 // --- User & Authentication ---
 
 bool BankDB::registerUser(const QString &firstName, const QString &lastName, const QString &userName,
-                          const QString &email, const QString &password, QString &mobile, const QString &tpin) {
+                          const QString &email,const QString &cnic, const QString &password, QString &mobile, const QString &tpin) {
     // Convert plain text password to a SHA-256 Hash
     QByteArray passwordData = password.toUtf8();
     QString passHashedPath = QString(QCryptographicHash::hash(passwordData, QCryptographicHash::Sha256).toHex());
@@ -84,12 +85,13 @@ bool BankDB::registerUser(const QString &firstName, const QString &lastName, con
     QString tpinHashedPath = QString(QCryptographicHash::hash(tpinData,QCryptographicHash::Sha256).toHex());
 
     QSqlQuery query;
-    query.prepare("INSERT INTO Users (first_name, last_name, user_name, email, password, mobile_no,tpin) "
-                  "VALUES (?, ?, ?, ?, ?, ?,?)");
+    query.prepare("INSERT INTO Users (first_name, last_name, user_name, email, cnic, password, mobile_no,tpin) "
+                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     query.addBindValue(firstName);
     query.addBindValue(lastName);
     query.addBindValue(userName);
     query.addBindValue(email);
+    query.addBindValue(cnic);
     query.addBindValue(passHashedPath);
     query.addBindValue(mobile);
     query.addBindValue(tpinHashedPath);
@@ -133,6 +135,18 @@ bool BankDB::emailExist(const QString &email){
     QSqlQuery query;
     query.prepare("SELECT email FROM Users WHERE email = ?");
     query.addBindValue(email);
+
+    if (query.exec() && query.next()){
+        return true;
+    }
+
+    return false;
+}
+
+bool BankDB::cnicExist(const QString &cnic){
+    QSqlQuery query;
+    query.prepare("SELECT cnic FROM Users WHERE cnic = ?");
+    query.addBindValue(cnic);
 
     if (query.exec() && query.next()){
         return true;
@@ -330,8 +344,10 @@ bool BankDB::initializeSchema() {
                 last_name NVARCHAR(30) NOT NULL,
                 user_name NVARCHAR(15) UNIQUE NOT NULL,
                 email NVARCHAR(100) UNIQUE NOT NULL,
+                cnic NVARCHAR(15) UNIQUE NOT NULL,
                 password NVARCHAR(64) NOT NULL,
                 mobile_no NVARCHAR(11) UNIQUE NOT NULL,
+                tpin NVARCHAR(64) NOT NULL,
                 created_at DATETIME DEFAULT GETDATE()
             );
         END

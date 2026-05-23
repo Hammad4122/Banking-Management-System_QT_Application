@@ -29,7 +29,7 @@ LoginWindow::LoginWindow(QWidget *parent): BasePage(parent)
     headerLayout->setContentsMargins(0, 0, 0, 0); // Give it some padding from the window edge
     headerLayout->setSpacing(10); // Space between logo and text
 
-    logoTitleLabel = new QLabel("<b>Banking</b><br>Management System", this);
+    logoTitleLabel = new QLabel("ApexVault", this);
     logoTitleLabel->setObjectName("logoTitleLabel");
 
     // Theme Toggle Button

@@ -20,6 +20,7 @@ private:
     UserSessionHandler *m_session;
     QLabel *dashTitleLabel;
     QLabel *userImgLabel;
+    QLabel *userAccountNo;
     QPushButton *settingBtn;
     QPushButton *notificationBtn;
     QPushButton *logoutBtn;
