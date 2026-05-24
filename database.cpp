@@ -6,52 +6,47 @@
 #include <QCryptographicHash>
 #include <QSqlQueryModel>
 
-// --- Database Lifecycle ---
+// ─── Admin defaults ─────────────────────────────────────────────────────────
+// These are the seed values written into AdminCredentials on first run.
+// The password hash below is SHA-256("admin123").
+static const QString ADMIN_DEFAULT_USERNAME     = "admin";
+static const QString ADMIN_DEFAULT_PASSWORD_HASH =
+    "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"; // SHA-256 of "admin123"
+
+// ─── Lifecycle ───────────────────────────────────────────────────────────────
 
 bool BankDB::connectDB() {
-    // 1. Check if the default connection already exists and is open
     if (QSqlDatabase::contains("qt_sql_default_connection")) {
         db = QSqlDatabase::database("qt_sql_default_connection");
-        if (db.isOpen()) {
-            return true; // Use the existing connection
-        }
+        if (db.isOpen()) return true;
     }
 
-    // 2. If not, set up the QODBC connection for SQL Server
     db = QSqlDatabase::addDatabase("QODBC");
 
     QString connStr;
-
-    #ifdef Q_OS_WIN
-        // Windows Configuration: Local instance using Windows Auth
-        connStr = "Driver={SQL Server};"
-                  "Server=Hammad\\SQLEXPRESS;"
-                  "Database=BankDB;"
-                  "Trusted_Connection=yes;";
-    #else
-        // Linux/Pop!_OS Configuration: Remote connection via IP using SQL Auth
-        connStr = "Driver={ODBC Driver 18 for SQL Server};"
-                  "Server=;"
-                  "Database=BankDB;"
-                  "UID=;"
-                  "PWD=;" // Use the password you set in SSMS
-                  "Encrypt=yes;"
-                  "TrustServerCertificate=yes;";
-    #endif
+#ifdef Q_OS_WIN
+    connStr = "Driver={SQL Server};"
+              "Server=Hammad\\SQLEXPRESS;"
+              "Database=BankDB;"
+              "Trusted_Connection=yes;";
+#else
+    connStr = "Driver={ODBC Driver 18 for SQL Server};"
+              "Server=;"
+              "Database=BankDB;"
+              "UID=;"
+              "PWD=;"
+              "Encrypt=yes;"
+              "TrustServerCertificate=yes;";
+#endif
 
     db.setDatabaseName(connStr);
 
-    // 3. Attempt to open
     if (db.open()) {
         QSqlQuery query;
-
-        // 1. First, tell SQL Server to use the specific database
         if (!query.exec("USE BankDB;")) {
             qDebug() << "Database Error: Could not switch to BankDB." << query.lastError().text();
             return false;
         }
-
-        // 2. Now that we are IN the BankDB, create the tables
         if (initializeSchema()) {
             qDebug() << "Successfully connected to SQL Server and verified schema.";
             return true;
@@ -68,136 +63,193 @@ bool BankDB::connectDB() {
 void BankDB::disconnectDB() {
     if (db.isOpen()) {
         db.close();
-        qDebug()<<"Database Disconnected";
+        qDebug() << "Database Disconnected";
     }
 }
 
-// --- User & Authentication ---
+// ─── Schema ──────────────────────────────────────────────────────────────────
 
-bool BankDB::registerUser(const QString &firstName, const QString &lastName, const QString &userName,
-                          const QString &email,const QString &cnic, const QString &password, QString &mobile, const QString &tpin) {
-    // Convert plain text password to a SHA-256 Hash
-    QByteArray passwordData = password.toUtf8();
-    QString passHashedPath = QString(QCryptographicHash::hash(passwordData, QCryptographicHash::Sha256).toHex());
+bool BankDB::initializeSchema() {
+    QSqlQuery query;
+    QStringList schemaQueries;
 
-    // Convert plain tpin to a SHA-256
-    QByteArray tpinData = tpin.toUtf8();
-    QString tpinHashedPath = QString(QCryptographicHash::hash(tpinData,QCryptographicHash::Sha256).toHex());
+    // 1. Users
+    schemaQueries << R"(
+        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Users')
+        BEGIN
+            CREATE TABLE Users (
+                user_id    INT PRIMARY KEY IDENTITY(1,1),
+                first_name NVARCHAR(30)  NOT NULL,
+                last_name  NVARCHAR(30)  NOT NULL,
+                user_name  NVARCHAR(15)  UNIQUE NOT NULL,
+                email      NVARCHAR(100) UNIQUE NOT NULL,
+                cnic       NVARCHAR(15)  UNIQUE NOT NULL,
+                password   NVARCHAR(64)  NOT NULL,
+                mobile_no  NVARCHAR(11)  UNIQUE NOT NULL,
+                tpin       NVARCHAR(64)  NOT NULL,
+                created_at DATETIME DEFAULT GETDATE()
+            );
+        END
+    )";
+
+    // 2. Accounts
+    schemaQueries << R"(
+        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Accounts')
+        BEGIN
+            CREATE TABLE Accounts (
+                account_id INT PRIMARY KEY IDENTITY(1000,1),
+                user_id    INT NOT NULL,
+                balance    DECIMAL(18, 2) DEFAULT 0.00,
+                currency   NVARCHAR(10) DEFAULT 'PKR',
+                CONSTRAINT FK_UserAccount FOREIGN KEY (user_id)
+                    REFERENCES Users(user_id) ON DELETE CASCADE
+            );
+        END
+    )";
+
+    // 3. Transactions
+    schemaQueries << R"(
+        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Transactions')
+        BEGIN
+            CREATE TABLE Transactions (
+                transaction_id   INT PRIMARY KEY IDENTITY(1,1),
+                account_id       INT NOT NULL,
+                transaction_type NVARCHAR(20) NOT NULL,
+                amount           DECIMAL(18, 2) NOT NULL,
+                balance_after    DECIMAL(18, 2) NOT NULL,
+                remarks          NVARCHAR(255),
+                transaction_date DATETIME DEFAULT GETDATE(),
+                CONSTRAINT FK_AccountTransaction FOREIGN KEY (account_id)
+                    REFERENCES Accounts(account_id) ON DELETE CASCADE
+            );
+        END
+    )";
+
+    // 4. AdminCredentials – single-row table; seeded on first run
+    schemaQueries << R"(
+        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'AdminCredentials')
+        BEGIN
+            CREATE TABLE AdminCredentials (
+                id            INT PRIMARY KEY DEFAULT 1,
+                admin_username NVARCHAR(50) NOT NULL,
+                password_hash  NVARCHAR(64) NOT NULL
+            );
+        END
+    )";
+
+    // Execute schema
+    for (const QString &q : std::as_const(schemaQueries)) {
+        if (!query.exec(q)) {
+            qDebug() << "Schema Error:" << query.lastError().text();
+            return false;
+        }
+    }
+
+    // Seed admin credentials if the row doesn't exist yet
+    query.prepare("IF NOT EXISTS (SELECT 1 FROM AdminCredentials WHERE id = 1) "
+                  "INSERT INTO AdminCredentials (id, admin_username, password_hash) "
+                  "VALUES (1, ?, ?)");
+    query.addBindValue(ADMIN_DEFAULT_USERNAME);
+    query.addBindValue(ADMIN_DEFAULT_PASSWORD_HASH);
+    if (!query.exec()) {
+        qDebug() << "Admin seed error:" << query.lastError().text();
+        return false;
+    }
+
+    qDebug() << "Database tables validated/created successfully.";
+    return true;
+}
+
+// ─── User auth & registration ────────────────────────────────────────────────
+
+bool BankDB::registerUser(const QString &firstName, const QString &lastName,
+                          const QString &userName, const QString &email,
+                          const QString &cnic, const QString &password,
+                          QString &mobile, const QString &tpin)
+{
+    auto sha256 = [](const QString &plain) {
+        return QString(QCryptographicHash::hash(plain.toUtf8(),
+                                                QCryptographicHash::Sha256).toHex());
+    };
 
     QSqlQuery query;
-    query.prepare("INSERT INTO Users (first_name, last_name, user_name, email, cnic, password, mobile_no,tpin) "
+    query.prepare("INSERT INTO Users "
+                  "(first_name, last_name, user_name, email, cnic, password, mobile_no, tpin) "
                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     query.addBindValue(firstName);
     query.addBindValue(lastName);
     query.addBindValue(userName);
     query.addBindValue(email);
     query.addBindValue(cnic);
-    query.addBindValue(passHashedPath);
+    query.addBindValue(sha256(password));
     query.addBindValue(mobile);
-    query.addBindValue(tpinHashedPath);
+    query.addBindValue(sha256(tpin));
 
     return query.exec();
 }
 
 int BankDB::loginUser(const QString userName, const QString password) {
-    // 1. Hash the password (exactly like you had it)
-    QByteArray passwordData = password.toUtf8();
-    QString hashedPath = QString(QCryptographicHash::hash(passwordData, QCryptographicHash::Sha256).toHex());
-
+    QString hash = QString(QCryptographicHash::hash(
+                               password.toUtf8(), QCryptographicHash::Sha256).toHex());
     QSqlQuery query;
     query.prepare("SELECT user_id FROM Users WHERE user_name = ? AND password = ?");
     query.addBindValue(userName);
-    query.addBindValue(hashedPath);
+    query.addBindValue(hash);
 
-    // 2. Execute and check results
-    if (query.exec() && query.next()) {
-        // Return the actual ID from the first column (index 0)
-        return query.value(0).toInt();
-    }
-
-    // 3. Return -1 if login fails (standard C++ "error" indicator)
+    if (query.exec() && query.next()) return query.value(0).toInt();
     return -1;
 }
 
-bool BankDB::userExist(const QString& userName){
+bool BankDB::userExist(const QString &userName) {
     QSqlQuery query;
-    query.prepare("Select user_name FROM Users WHERE user_name = ?");
+    query.prepare("SELECT user_name FROM Users WHERE user_name = ?");
     query.addBindValue(userName);
-
-    if (query.exec() && query.next()){
-        return true;
-    }
-
-    return false;
+    return query.exec() && query.next();
 }
 
-bool BankDB::emailExist(const QString &email){
+bool BankDB::emailExist(const QString &email) {
     QSqlQuery query;
     query.prepare("SELECT email FROM Users WHERE email = ?");
     query.addBindValue(email);
-
-    if (query.exec() && query.next()){
-        return true;
-    }
-
-    return false;
+    return query.exec() && query.next();
 }
 
-bool BankDB::cnicExist(const QString &cnic){
+bool BankDB::cnicExist(const QString &cnic) {
     QSqlQuery query;
     query.prepare("SELECT cnic FROM Users WHERE cnic = ?");
     query.addBindValue(cnic);
-
-    if (query.exec() && query.next()){
-        return true;
-    }
-
-    return false;
+    return query.exec() && query.next();
 }
 
-bool BankDB::mobileNoExist(const QString &mobileNo){
+bool BankDB::mobileNoExist(const QString &mobileNo) {
     QSqlQuery query;
     query.prepare("SELECT mobile_no FROM Users WHERE mobile_no = ?");
     query.addBindValue(mobileNo);
-
-    if (query.exec() && query.next()){
-        return true;
-    }
-
-    return false;
+    return query.exec() && query.next();
 }
 
-bool BankDB::accountExist(const QString &accountNo){
+bool BankDB::accountExist(const QString &accountNo) {
     QSqlQuery query;
     query.prepare("SELECT account_id FROM Accounts WHERE account_id = ?");
     query.addBindValue(accountNo);
-    if (query.exec() && query.next()){
-        return true;
-    }
-    else {
-        return false;
-    }
+    return query.exec() && query.next();
 }
 
-int BankDB::getUserid(const QString& username){
+int BankDB::getUserid(const QString &username) {
     QSqlQuery query;
     query.prepare("SELECT user_id FROM Users WHERE user_name = ?");
     query.addBindValue(username);
-
-    if (query.exec() && query.next()){
-        return query.value(0).toInt();
-    }
+    if (query.exec() && query.next()) return query.value(0).toInt();
     return -1;
 }
 
-// --- Account Operations ---
+// ─── Account operations ───────────────────────────────────────────────────────
 
 bool BankDB::createAccount(int userId, const QString &currency) {
     QSqlQuery query;
     query.prepare("INSERT INTO Accounts (user_id, balance, currency) VALUES (?, 0, ?)");
     query.addBindValue(userId);
     query.addBindValue(currency);
-
     return query.exec();
 }
 
@@ -205,235 +257,147 @@ double BankDB::getBalance(int accountId) {
     QSqlQuery query;
     query.prepare("SELECT balance FROM Accounts WHERE account_id = ?");
     query.addBindValue(accountId);
-
-    if (query.exec() && query.next()) {
-        return query.value(0).toDouble();
-    }
-    return -1.0; // Return -1 if account doesn't exist
+    if (query.exec() && query.next()) return query.value(0).toDouble();
+    return -1.0;
 }
 
-// --- Financial Transactions ---
+int BankDB::getAccountID(int userId) {
+    QSqlQuery query;
+    query.prepare("SELECT account_id FROM Accounts WHERE user_id = ?");
+    query.addBindValue(userId);
+    if (query.exec() && query.next()) return query.value(0).toInt();
+    return -1;
+}
 
-bool BankDB::executeDeposit(int accountId, double amount, const QString& remarks) {
-    // 1. Get the current balance BEFORE starting the transaction
-    double currentBalance = getBalance(accountId);
+// ─── Financial transactions ───────────────────────────────────────────────────
+
+bool BankDB::executeDeposit(int accountId, double amount, const QString &remarks) {
+    double newBalance = getBalance(accountId) + amount;
 
     QSqlQuery query;
-    double newBalance = currentBalance + amount;
-
-    // 2. Update Balance
     query.prepare("UPDATE Accounts SET balance = ? WHERE account_id = ?");
     query.addBindValue(newBalance);
     query.addBindValue(accountId);
-
     query.exec();
 
-    // 3. Log Transaction
-    query.prepare("INSERT INTO Transactions (account_id, transaction_type, amount, balance_after, remarks) "
+    query.prepare("INSERT INTO Transactions "
+                  "(account_id, transaction_type, amount, balance_after, remarks) "
                   "VALUES (?, 'Deposit', ?, ?, ?)");
     query.addBindValue(accountId);
     query.addBindValue(amount);
     query.addBindValue(newBalance);
     query.addBindValue(remarks);
-
     return query.exec();
 }
 
-// This is a private helper that just does the SQL work
-bool BankDB::executeWithdraw(int accountId, double amount, const QString& remarks) {
+bool BankDB::executeWithdraw(int accountId, double amount, const QString &remarks) {
+    double newBalance = getBalance(accountId) - amount;
+
     QSqlQuery query;
-    // 1. Check Balance
-    if (getBalance(accountId) < amount) return false;
-
-    // 2. Update Balance
-    query.prepare("UPDATE Accounts SET balance = balance - ? WHERE account_id = ?");
-    query.addBindValue(amount);
+    query.prepare("UPDATE Accounts SET balance = ? WHERE account_id = ?");
+    query.addBindValue(newBalance);
     query.addBindValue(accountId);
-
     query.exec();
 
-    // 3. Log
-    query.prepare("INSERT INTO Transactions (account_id, transaction_type, amount, balance_after, remarks) "
+    query.prepare("INSERT INTO Transactions "
+                  "(account_id, transaction_type, amount, balance_after, remarks) "
                   "VALUES (?, 'Withdrawal', ?, ?, ?)");
     query.addBindValue(accountId);
     query.addBindValue(amount);
     query.addBindValue(getBalance(accountId));
     query.addBindValue(remarks);
-
     return query.exec();
 }
 
 bool BankDB::transfer(int senderId, int receiverId, double amount, const QString &remarks) {
-
-    // Use the logic-only helpers
-    if (!executeWithdraw(senderId, amount, "Transfer to " + QString::number(receiverId))) {
+    if (!executeWithdraw(senderId, amount,
+                         "Transfer to " + QString::number(receiverId)))
         return false;
-    }
-
-    if (!executeDeposit(receiverId, amount, "Transfer from " + QString::number(senderId))) {
-        return false;
-    }
-
-    return true;
+    return executeDeposit(receiverId, amount,
+                          "Transfer from " + QString::number(senderId));
 }
 
-// --- Data Retrieval ---
-QSqlQueryModel* BankDB::getTransactionHistory(int accountId) {
-    QSqlQueryModel *model = new QSqlQueryModel();
-
+bool BankDB::authTransaction(int userId, const QString &tpin) {
     QSqlQuery query;
-    // Selecting and renaming columns for clean headers in the UI
+    query.prepare("SELECT tpin FROM Users WHERE user_id = ?");
+    query.addBindValue(userId);
+    if (!query.exec()) {
+        qDebug() << "authTransaction query failed:" << query.lastError().text();
+        return false;
+    }
+    if (query.next()) {
+        QString hash = QString(QCryptographicHash::hash(
+                                   tpin.toUtf8(), QCryptographicHash::Sha256).toHex());
+        return hash == query.value(0).toString();
+    }
+    return false;
+}
+
+// ─── Data retrieval (user) ────────────────────────────────────────────────────
+
+QSqlQueryModel *BankDB::getTransactionHistory(int accountId) {
+    QSqlQueryModel *model = new QSqlQueryModel();
+    QSqlQuery query;
     query.prepare("SELECT transaction_date AS \"Date\", "
-                  "transaction_type AS \"Type\", "
-                  "'$' + CAST(amount AS VARCHAR(20)) AS \"Amount\", "
-                  "remarks as \"Remarks\" "
+                  "       transaction_type AS \"Type\", "
+                  "       '$' + CAST(amount AS VARCHAR(20)) AS \"Amount\", "
+                  "       remarks AS \"Remarks\" "
                   "FROM Transactions "
                   "WHERE account_id = ? "
-                  "ORDER BY transaction_date DESC"); // Newest first
+                  "ORDER BY transaction_date DESC");
     query.addBindValue(accountId);
     query.exec();
-
     model->setQuery(std::move(query));
     return model;
 }
 
-double BankDB::getIncome(int accountID){
+double BankDB::getIncome(int accountId) {
     QSqlQuery query;
-    // Remove the quotes around the second ?
-    query.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
-    query.addBindValue(accountID);
+    query.prepare("SELECT SUM(amount) FROM Transactions "
+                  "WHERE account_id = ? AND transaction_type = ?");
+    query.addBindValue(accountId);
     query.addBindValue("Deposit");
-
-    if (query.exec() && query.next()){
-        // If there are no transactions, SUM() returns NULL.
-        // toDouble() will safely turn NULL into 0.0
-        return query.value(0).toDouble();
-    }
-
-    return 0.0; // Return 0 instead of -1 so UI doesn't show "$-1.00"
-}
-
-double BankDB::getExpenses(int accountID){
-    QSqlQuery query;
-    query.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
-    query.addBindValue(accountID);
-    query.addBindValue("Withdrawal");
-
-    if (query.exec() && query.next()){
-        // If there are no transactions, SUM() returns NULL.
-        // toDouble() will safely turn NULL into 0.0
-        return query.value(0).toDouble();
-    }
-
+    if (query.exec() && query.next()) return query.value(0).toDouble();
     return 0.0;
 }
 
-bool BankDB::initializeSchema() {
+double BankDB::getExpenses(int accountId) {
     QSqlQuery query;
-
-    // We use a list of queries to execute them one by one
-    QStringList schemaQueries;
-
-    // 1. Users Table
-    schemaQueries << R"(
-        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Users')
-        BEGIN
-            CREATE TABLE Users (
-                user_id INT PRIMARY KEY IDENTITY(1,1),
-                first_name NVARCHAR(30) NOT NULL,
-                last_name NVARCHAR(30) NOT NULL,
-                user_name NVARCHAR(15) UNIQUE NOT NULL,
-                email NVARCHAR(100) UNIQUE NOT NULL,
-                cnic NVARCHAR(15) UNIQUE NOT NULL,
-                password NVARCHAR(64) NOT NULL,
-                mobile_no NVARCHAR(11) UNIQUE NOT NULL,
-                tpin NVARCHAR(64) NOT NULL,
-                created_at DATETIME DEFAULT GETDATE()
-            );
-        END
-    )";
-
-    // 2. Accounts Table
-    schemaQueries << R"(
-        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Accounts')
-        BEGIN
-            CREATE TABLE Accounts (
-                account_id INT PRIMARY KEY IDENTITY(1000,1),
-                user_id INT NOT NULL,
-                balance DECIMAL(18, 2) DEFAULT 0.00,
-                currency NVARCHAR(10) DEFAULT 'PKR',
-                CONSTRAINT FK_UserAccount FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
-            );
-        END
-    )";
-
-    // 3. Transactions Table
-    schemaQueries << R"(
-        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Transactions')
-        BEGIN
-            CREATE TABLE Transactions (
-                transaction_id INT PRIMARY KEY IDENTITY(1,1),
-                account_id INT NOT NULL,
-                transaction_type NVARCHAR(20) NOT NULL,
-                amount DECIMAL(18, 2) NOT NULL,
-                balance_after DECIMAL(18, 2) NOT NULL,
-                remarks NVARCHAR(255),
-                transaction_date DATETIME DEFAULT GETDATE(),
-                CONSTRAINT FK_AccountTransaction FOREIGN KEY (account_id) REFERENCES Accounts(account_id) ON DELETE CASCADE
-            );
-        END
-    )";
-
-    // Execute each block
-    for (const QString &queryString : std::as_const(schemaQueries)) {
-        if (!query.exec(queryString)) {
-            qDebug() << "Database Schema Error:" << query.lastError().text();
-            qDebug() << "Query Context:" << queryString.left(50) << "...";
-            return false;
-        }
-    }
-
-    qDebug() << "Database tables validated/created successfully.";
-    return true;
+    query.prepare("SELECT SUM(amount) FROM Transactions "
+                  "WHERE account_id = ? AND transaction_type = ?");
+    query.addBindValue(accountId);
+    query.addBindValue("Withdrawal");
+    if (query.exec() && query.next()) return query.value(0).toDouble();
+    return 0.0;
 }
 
-UserSessionHandler* BankDB::setUserInfo(int id, int accountID) {
-    QSqlQuery query;
-    QSqlQuery incomeQuery;
-    QSqlQuery expenseQuery;
+// ─── Session factory ──────────────────────────────────────────────────────────
 
-    // FIX 1: Removed sum(t.amount) and table 't' which caused the binding error
-    QString sql = "SELECT "
-                  "u.user_id, u.first_name, u.last_name, u.user_name, u.email, u.mobile_no, "
-                  "a.account_id, a.balance "
-                  "FROM Users u "
-                  "JOIN Accounts a ON u.user_id = a.user_id "
-                  "WHERE u.user_id = ?";
+UserSessionHandler *BankDB::setUserInfo(int id, int accountID) {
+    QSqlQuery query, incomeQuery, expenseQuery;
 
-    query.prepare(sql);
+    query.prepare("SELECT u.user_id, u.first_name, u.last_name, u.user_name, "
+                  "       u.email, u.mobile_no, a.account_id, a.balance "
+                  "FROM Users u JOIN Accounts a ON u.user_id = a.user_id "
+                  "WHERE u.user_id = ?");
     query.addBindValue(id);
 
-    // FIX 2: Standard income query (Ensured NO single quotes around ?)
-    incomeQuery.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
+    incomeQuery.prepare("SELECT SUM(amount) FROM Transactions "
+                        "WHERE account_id = ? AND transaction_type = ?");
     incomeQuery.addBindValue(accountID);
     incomeQuery.addBindValue("Deposit");
 
-    // Standard expense query
-    expenseQuery.prepare("SELECT SUM(amount) FROM Transactions WHERE account_id = ? AND transaction_type = ?");
+    expenseQuery.prepare("SELECT SUM(amount) FROM Transactions "
+                         "WHERE account_id = ? AND transaction_type = ?");
     expenseQuery.addBindValue(accountID);
     expenseQuery.addBindValue("Withdrawal");
 
-    // Execute both
-    bool userOk = query.exec() && query.next();
-    bool incomeOk = incomeQuery.exec() && incomeQuery.next();
-    bool expenseOk = expenseQuery.exec() && expenseQuery.next();
+    bool ok1 = query.exec()       && query.next();
+    bool ok2 = incomeQuery.exec() && incomeQuery.next();
+    bool ok3 = expenseQuery.exec() && expenseQuery.next();
 
-    if (userOk && incomeOk && expenseOk) {
-        // Safe check: If SUM() is NULL (no deposits), toDouble() returns 0.0
-        double totalIncome = incomeQuery.value(0).toDouble();
-        double totalExpense = expenseQuery.value(0).toDouble();
-
-        UserSessionHandler* userSession = new UserSessionHandler(
+    if (ok1 && ok2 && ok3) {
+        return new UserSessionHandler(
             query.value("user_id").toInt(),
             query.value("first_name").toString(),
             query.value("last_name").toString(),
@@ -442,49 +406,157 @@ UserSessionHandler* BankDB::setUserInfo(int id, int accountID) {
             query.value("mobile_no").toString(),
             query.value("account_id").toInt(),
             query.value("balance").toDouble(),
-            totalIncome,
-            totalExpense// Passing the result from the second query
+            incomeQuery.value(0).toDouble(),
+            expenseQuery.value(0).toDouble()
             );
-        return userSession;
-    } else {
-        qDebug() << "Error executing queries for ID:" << id;
-        if (query.lastError().isValid()) qDebug() << "User Query Error:" << query.lastError().text();
-        if (incomeQuery.lastError().isValid()) qDebug() << "Income Query Error:" << incomeQuery.lastError().text();
     }
+
+    qDebug() << "setUserInfo failed for id:" << id;
     return nullptr;
 }
 
+// ─── Admin: system-wide queries ───────────────────────────────────────────────
 
-int BankDB::getAccountID(int id){
+QSqlQueryModel *BankDB::getAllUsers(const QString &filter) {
+    QSqlQueryModel *model = new QSqlQueryModel();
     QSqlQuery query;
-    query.prepare("SELECT account_id FROM Accounts WHERE user_id = ?");
-    query.addBindValue(id);
 
-    if (query.exec() && query.next()){
-        return query.value(0).toInt();
+    if (filter.isEmpty()) {
+        query.prepare("SELECT u.user_id    AS \"ID\", "
+                      "       u.first_name + ' ' + u.last_name AS \"Full Name\", "
+                      "       u.user_name  AS \"Username\", "
+                      "       u.email      AS \"Email\", "
+                      "       u.mobile_no  AS \"Mobile\", "
+                      "       CONVERT(NVARCHAR, u.created_at, 103) AS \"Joined\" "
+                      "FROM Users u "
+                      "ORDER BY u.user_id DESC");
+        query.exec();
+    } else {
+        QString like = "%" + filter + "%";
+        query.prepare("SELECT u.user_id    AS \"ID\", "
+                      "       u.first_name + ' ' + u.last_name AS \"Full Name\", "
+                      "       u.user_name  AS \"Username\", "
+                      "       u.email      AS \"Email\", "
+                      "       u.mobile_no  AS \"Mobile\", "
+                      "       CONVERT(NVARCHAR, u.created_at, 103) AS \"Joined\" "
+                      "FROM Users u "
+                      "WHERE u.user_name LIKE ? OR u.email LIKE ? "
+                      "   OR u.first_name LIKE ? OR u.last_name LIKE ? "
+                      "ORDER BY u.user_id DESC");
+        query.addBindValue(like);
+        query.addBindValue(like);
+        query.addBindValue(like);
+        query.addBindValue(like);
+        query.exec();
     }
-    return -1;
+
+    model->setQuery(std::move(query));
+    return model;
 }
 
-bool BankDB::authTransaction(int id, const QString &tpin) {
+QSqlQueryModel *BankDB::getAllAccounts() {
+    QSqlQueryModel *model = new QSqlQueryModel();
     QSqlQuery query;
-    // Fix: Removed duplicate "FROM Users" and fixed syntax
-    query.prepare("SELECT tpin FROM Users WHERE user_id = ?");
-    query.addBindValue(id);
+    query.prepare("SELECT a.account_id  AS \"Account No\", "
+                  "       u.first_name + ' ' + u.last_name AS \"Owner\", "
+                  "       u.user_name   AS \"Username\", "
+                  "       a.currency    AS \"Currency\", "
+                  "       '$' + CAST(CAST(a.balance AS DECIMAL(18,2)) AS NVARCHAR) AS \"Balance\" "
+                  "FROM Accounts a "
+                  "JOIN Users u ON a.user_id = u.user_id "
+                  "ORDER BY a.account_id DESC");
+    query.exec();
+    model->setQuery(std::move(query));
+    return model;
+}
 
-    if (!query.exec()) {
-        qDebug() << "Query failed:" << query.lastError().text();
+int BankDB::getTotalUserCount() {
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(*) FROM Users");
+    if (query.exec() && query.next()) return query.value(0).toInt();
+    return 0;
+}
+
+double BankDB::getSystemTotalBalance() {
+    QSqlQuery query;
+    query.prepare("SELECT ISNULL(SUM(balance), 0) FROM Accounts");
+    if (query.exec() && query.next()) return query.value(0).toDouble();
+    return 0.0;
+}
+
+double BankDB::getSystemTotalDeposits() {
+    QSqlQuery query;
+    query.prepare("SELECT ISNULL(SUM(amount), 0) FROM Transactions "
+                  "WHERE transaction_type = 'Deposit'");
+    if (query.exec() && query.next()) return query.value(0).toDouble();
+    return 0.0;
+}
+
+double BankDB::getSystemTotalWithdrawals() {
+    QSqlQuery query;
+    query.prepare("SELECT ISNULL(SUM(amount), 0) FROM Transactions "
+                  "WHERE transaction_type = 'Withdrawal'");
+    if (query.exec() && query.next()) return query.value(0).toDouble();
+    return 0.0;
+}
+
+// ─── Admin: credential management ────────────────────────────────────────────
+
+bool BankDB::authenticateAdmin(const QString &username, const QString &password) {
+    QString hash = QString(QCryptographicHash::hash(
+                               password.toUtf8(), QCryptographicHash::Sha256).toHex());
+    QSqlQuery query;
+    query.prepare("SELECT 1 FROM AdminCredentials "
+                  "WHERE admin_username = ? AND password_hash = ?");
+    query.addBindValue(username);
+    query.addBindValue(hash);
+    return query.exec() && query.next();
+}
+
+bool BankDB::changeAdminCredentials(const QString &currentPassword,
+                                    const QString &newUsername,
+                                    const QString &newPassword)
+{
+    // 1. Fetch current stored hash to verify currentPassword
+    QSqlQuery fetchQuery;
+    fetchQuery.prepare("SELECT admin_username, password_hash FROM AdminCredentials WHERE id = 1");
+    if (!fetchQuery.exec() || !fetchQuery.next()) {
+        qDebug() << "changeAdminCredentials: fetch failed" << fetchQuery.lastError().text();
+        return false;
+    }
+    QString storedUsername = fetchQuery.value("admin_username").toString();
+    QString storedHash     = fetchQuery.value("password_hash").toString();
+
+    // 2. Verify current password
+    QString currentHash = QString(QCryptographicHash::hash(
+                                      currentPassword.toUtf8(),
+                                      QCryptographicHash::Sha256).toHex());
+    if (currentHash != storedHash) {
+        qDebug() << "changeAdminCredentials: wrong current password";
         return false;
     }
 
-    if (query.next()) { // You MUST call next() to move to the first result
-        QByteArray tpinData = tpin.toUtf8();
-        QString tpinHashedInput = QString(QCryptographicHash::hash(tpinData, QCryptographicHash::Sha256).toHex());
+    // 3. Resolve new values (keep old if empty)
+    QString finalUsername = newUsername.trimmed().isEmpty() ? storedUsername
+                                                            : newUsername.trimmed();
+    QString finalHash     = newPassword.trimmed().isEmpty() ? storedHash
+                                                        : QString(QCryptographicHash::hash(
+                                                                      newPassword.toUtf8(),
+                                                                      QCryptographicHash::Sha256).toHex());
 
-        QString storedHash = query.value(0).toString();
+    // 4. Update
+    QSqlQuery updateQuery;
+    updateQuery.prepare("UPDATE AdminCredentials "
+                        "SET admin_username = ?, password_hash = ? "
+                        "WHERE id = 1");
+    updateQuery.addBindValue(finalUsername);
+    updateQuery.addBindValue(finalHash);
 
-        return (tpinHashedInput == storedHash);
+    if (!updateQuery.exec()) {
+        qDebug() << "changeAdminCredentials: update failed" << updateQuery.lastError().text();
+        return false;
     }
 
-    return false; // wrong tpin (not matched)
+    qDebug() << "Admin credentials updated successfully.";
+    return true;
 }

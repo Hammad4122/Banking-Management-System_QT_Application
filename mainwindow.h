@@ -2,53 +2,43 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QWidget>
-#include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QStackedWidget>
 #include "loginwindow.h"
 #include "dashboardwindow.h"
 #include "signupwindow.h"
+#include "usersessionhandler.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
-
+/**
+ * MainWindow
+ *
+ * Top-level window that owns the QStackedWidget and routes between:
+ *   Index 0 – LoginWindow
+ *   Index 1 – SignupWindow
+ *   Index 2 – DashboardWindow (shared shell for user & admin)
+ *
+ * On login it asks LoginWindow which role was chosen and calls the
+ * appropriate DashboardWindow::initializeXxx() method.
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    void updateButtonStyles(QPushButton*);
-    void handleTheme();
-
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void handleTheme();
+
 private:
-    Ui::MainWindow *ui;
-    QPushButton *dashboard;
-    QPushButton *transactions;
-    QPushButton *accounts;
-    QVBoxLayout *contentLayout; // Move this from constructor to class member
-    QStackedWidget *stackedWidget;
-    LoginWindow *loginPage;
-    DashboardWindow *dashboardPage;
-    SignupWindow *signupPage;
-    UserSessionHandler* currentSession = nullptr;
+    QStackedWidget   *stackedWidget;
+    LoginWindow      *loginPage;
+    SignupWindow     *signupPage;
+    DashboardWindow  *dashboardPage;
 
+    UserSessionHandler *currentSession = nullptr;
 
-    void showDashboard();
-    void showTransactions();
-    void showAccounts();
-    void clearLayout(QLayout *layout);
-    void onUserLoggedIn(UserSessionHandler* session);
-
-    // virtual void changeTheme(bool darkModeEnabled);
+    void onUserLoggedIn(UserSessionHandler *session);
+    void onAdminLoggedIn();
 };
+
 #endif // MAINWINDOW_H

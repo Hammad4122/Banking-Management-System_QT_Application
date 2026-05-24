@@ -1,99 +1,102 @@
 #include "mainwindow.h"
 #include "signupwindow.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QWidget>
-#include <QAction>
-#include <QFontDatabase>
-#include <QPushButton>
-#include <QObject>
-#include <QStyle>
-#include <QTableWidget>
-#include <QHeaderView>
-#include <QDebug>
 #include <QMessageBox>
+#include <QVBoxLayout>
 
-
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    setFixedSize(1200,600);
-    // resize(1200,600);
-    // setMinimumSize(400,300);
-    // setMaximumSize(1500,800);
-    setWindowTitle("ApexVault-BMS");
+    setFixedSize(1200, 650);
+    setWindowTitle("ApexVault – BMS");
 
-    // 1. Create the Stacked Widget
+    // ── Stacked widget ─────────────────────────────────────────────
     stackedWidget = new QStackedWidget(this);
     setCentralWidget(stackedWidget);
 
-    // 2. Create your pages (Composition)
-    loginPage = new LoginWindow();
-    signupPage = new SignupWindow();
+    // ── Pages ──────────────────────────────────────────────────────
+    loginPage     = new LoginWindow();
+    signupPage    = new SignupWindow();
     dashboardPage = new DashboardWindow();
 
-    // 3. Adding pages to the stack
-    stackedWidget->addWidget(loginPage);    // Index 0
-    stackedWidget->addWidget(signupPage);   // Index 1
-    stackedWidget->addWidget(dashboardPage); // Index 2
+    stackedWidget->addWidget(loginPage);      // 0
+    stackedWidget->addWidget(signupPage);     // 1
+    stackedWidget->addWidget(dashboardPage);  // 2
 
-    // 4. Start with Login
-    stackedWidget->setCurrentIndex(0);  // Change back to 0
+    stackedWidget->setCurrentIndex(0);
 
-    connect(signupPage, &SignupWindow::loginRequested,[this](){
+    // ── Navigation signals ─────────────────────────────────────────
+    connect(signupPage, &SignupWindow::loginRequested, [this]() {
         stackedWidget->setCurrentIndex(0);
     });
 
-    connect(loginPage, &LoginWindow::signupRequested,[this](){
+    connect(loginPage, &LoginWindow::signupRequested, [this]() {
         stackedWidget->setCurrentIndex(1);
     });
 
-    // Connecting the login signal to a lambda that switches the index
-    connect(loginPage, &LoginWindow::loginSuccessful, this, &MainWindow::onUserLoggedIn);
+    // ── User login ─────────────────────────────────────────────────
+    connect(loginPage, &LoginWindow::loginSuccessful,
+            this,      &MainWindow::onUserLoggedIn);
 
-    connect(dashboardPage, &DashboardWindow::logoutRequested,[this](){
+    // ── Admin login ────────────────────────────────────────────────
+    connect(loginPage, &LoginWindow::adminLoginSuccessful,
+            this,      &MainWindow::onAdminLoggedIn);
+
+    // ── Logout ─────────────────────────────────────────────────────
+    connect(dashboardPage, &DashboardWindow::logoutRequested, [this]() {
         loginPage->resetForm();
         stackedWidget->setCurrentIndex(0);
-        QMessageBox::information(this,"Logout","Logged out successfully");
+        QMessageBox::information(this, "Logout", "Logged out successfully.");
     });
 
-    // Theme Connections
-    connect(loginPage, &LoginWindow::themeChangeRequested, [this](){
-        handleTheme();
-    });
-    connect(signupPage, &SignupWindow::themeChangeRequested, [this](){
-        handleTheme();
-    });
-    connect(dashboardPage, &DashboardWindow::themeChangeRequested,[this](){
-        handleTheme();
-    });
-};
+    // ── Theme ──────────────────────────────────────────────────────
+    connect(loginPage,     &LoginWindow::themeChangeRequested,
+            this, &MainWindow::handleTheme);
+    connect(signupPage,    &SignupWindow::themeChangeRequested,
+            this, &MainWindow::handleTheme);
+    connect(dashboardPage, &DashboardWindow::themeChangeRequested,
+            this, &MainWindow::handleTheme);
+}
 
-void MainWindow::handleTheme(){
-    // Call the static setter for isDarkMode
+// ─── Theme ────────────────────────────────────────────────────────────────────
+
+void MainWindow::handleTheme()
+{
     BasePage::toggleGlobalTheme();
-
     loginPage->applyCurrentTheme();
     signupPage->applyCurrentTheme();
     dashboardPage->applyCurrentTheme();
-};
+}
 
-// The slot implementation:
-void MainWindow::onUserLoggedIn(UserSessionHandler* session) {
-    // 1. Clean up the OLD session if it exists (Prevent Memory Leak)
-    if (currentSession != nullptr) {
+// ─── User login ───────────────────────────────────────────────────────────────
+
+void MainWindow::onUserLoggedIn(UserSessionHandler *session)
+{
+    if (currentSession) {
         delete currentSession;
         currentSession = nullptr;
     }
-
     currentSession = session;
-    if (currentSession) {
-        // 1. Pass the session to the Dashboard
-        dashboardPage->initializeDashboard(currentSession);
 
-        // 2. Switch the view
+    if (currentSession) {
+        dashboardPage->initializeUserDashboard(currentSession);
         stackedWidget->setCurrentIndex(2);
     }
 }
 
-MainWindow::~MainWindow(){delete currentSession;};
+// ─── Admin login ──────────────────────────────────────────────────────────────
+
+void MainWindow::onAdminLoggedIn()
+{
+    // No user session needed for admin
+    if (currentSession) {
+        delete currentSession;
+        currentSession = nullptr;
+    }
+
+    dashboardPage->initializeAdminDashboard();
+    stackedWidget->setCurrentIndex(2);
+}
+
+MainWindow::~MainWindow()
+{
+    delete currentSession;
+}

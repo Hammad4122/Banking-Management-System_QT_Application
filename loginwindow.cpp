@@ -4,156 +4,194 @@
 #include <QPainter>
 #include <QStyleOption>
 
-LoginWindow::LoginWindow(QWidget *parent): BasePage(parent)
+LoginWindow::LoginWindow(QWidget *parent) : BasePage(parent)
 {
-    // Login Widget
-    // QWidget *central = new QWidget();
-    // central->setObjectName("loginCentral");
-    // setCentralWidget(central);
-
     this->setObjectName("loginPage");
 
-    // Main Layout
+    // ── Main Layout ────────────────────────────────────────────────
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setObjectName("mainLayout");
-    mainLayout->setContentsMargins(30,20,50,50);
+    mainLayout->setContentsMargins(30, 20, 50, 50);
     mainLayout->setAlignment(Qt::AlignCenter);
 
-    // Create the label for the logo
+    // ── App Logo ───────────────────────────────────────────────────
     bankLogoLabel = new QLabel(this);
-    QPixmap logoPixmap(":/resources/bank_pic.png"); // Path from your .qrc
-    bankLogoLabel->setPixmap(logoPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    QPixmap logoPixmap(":/resources/bank_pic.png");
+    bankLogoLabel->setPixmap(logoPixmap.scaled(40, 40,
+                                               Qt::KeepAspectRatio, Qt::SmoothTransformation));
     bankLogoLabel->setObjectName("logoLabel");
 
+    // ── Header ─────────────────────────────────────────────────────
     QHBoxLayout *headerLayout = new QHBoxLayout();
-    headerLayout->setContentsMargins(0, 0, 0, 0); // Give it some padding from the window edge
-    headerLayout->setSpacing(10); // Space between logo and text
+    headerLayout->setContentsMargins(0, 0, 0, 0);
+    headerLayout->setSpacing(10);
 
     logoTitleLabel = new QLabel("ApexVault", this);
     logoTitleLabel->setObjectName("logoTitleLabel");
 
-    // Theme Toggle Button
     themeToggleBtn = new QPushButton("🌙");
-    themeToggleBtn->setFixedSize(40,40);
+    themeToggleBtn->setFixedSize(40, 40);
     themeToggleBtn->setObjectName("themeToggleBtn");
     themeToggleBtn->setCursor(Qt::PointingHandCursor);
 
-    // 2. Add widgets to the header layout
-    headerLayout->addWidget(bankLogoLabel,0,Qt::AlignLeft);       //Goes to left
-    headerLayout->addWidget(logoTitleLabel,0,Qt::AlignLeft); // Goes to left
-    headerLayout->addWidget(themeToggleBtn,1,Qt::AlignRight);// Goes to right
-    // headerLayout->addStretch();// Pushes everything to the left
+    headerLayout->addWidget(bankLogoLabel, 0, Qt::AlignLeft);
+    headerLayout->addWidget(logoTitleLabel, 0, Qt::AlignLeft);
+    headerLayout->addWidget(themeToggleBtn, 1, Qt::AlignRight);
 
+    // ── Login Card ─────────────────────────────────────────────────
     QWidget *card = new QWidget();
     card->setObjectName("loginCard");
-    card->setFixedSize(400,450);
+    card->setFixedSize(400, 510);   // Slightly taller to accommodate the combo
 
     QVBoxLayout *cardLayout = new QVBoxLayout(card);
-    cardLayout->setContentsMargins(40,40,40,40);
+    cardLayout->setContentsMargins(40, 40, 40, 40);
     cardLayout->setSpacing(15);
 
-    // Title Label
     titleLabel = new QLabel("Welcome Back");
     titleLabel->setObjectName("loginTitle");
 
-    // Line Edits (Input Fields)
+    // Username field
     userField = new QLineEdit();
-    userField->setPlaceholderText("eg. hammad4122");
+    userField->setPlaceholderText("e.g. hammad4122");
     userField->setFixedHeight(45);
 
+    // Password field
     passField = new QLineEdit();
     passField->setPlaceholderText("password");
-    // This hides the characters as the user types (very important for banking!)
     passField->setEchoMode(QLineEdit::Password);
     passField->setFixedHeight(45);
 
-    // Login Button
+    // ── Role Selector ComboBox ─────────────────────────────────────
+    // Placed directly below the password field so the admin can pick
+    // their role before clicking Login.
+    roleCombo = new QComboBox();
+    roleCombo->addItem("👤  Login as User",  "user");
+    roleCombo->addItem("🛡️  Login as Admin", "admin");
+    roleCombo->setFixedHeight(40);
+    roleCombo->setCursor(Qt::PointingHandCursor);
+    roleCombo->setObjectName("roleCombo");
+    // Style the combo to blend with the card theme
+    roleCombo->setStyleSheet(
+        "QComboBox { "
+        "    border: 1px solid #E6E9F4; border-radius: 8px; "
+        "    padding-left: 10px; background: #FFFFFF; color: #273671; "
+        "    font-size: 13px; font-weight: bold; "
+        "} "
+        "QComboBox:focus { border: 1.5px solid #2D60FF; } "
+        "QComboBox::drop-down { border: none; width: 30px; } "
+        "QComboBox QAbstractItemView { "
+        "    border: 1px solid #E6E9F4; border-radius: 8px; "
+        "    background: #FFFFFF; color: #273671; "
+        "    selection-background-color: #EEF2FF; "
+        "} "
+        );
+
+    // Login button
     loginBtn = new QPushButton("Login");
     loginBtn->setCursor(Qt::PointingHandCursor);
     loginBtn->setFixedHeight(45);
 
-    // Signup Page Button
+    // Signup link (only relevant for user role)
     signupLink = new QPushButton("Don't have an account? Signup");
     signupLink->setObjectName("linkBtn");
     signupLink->setCursor(Qt::PointingHandCursor);
     signupLink->setFixedHeight(45);
 
+    // Status / error label
     statusLabel = new QLabel("");
     statusLabel->setObjectName("statusLabel");
     statusLabel->hide();
 
+    // ── Assemble Card ──────────────────────────────────────────────
     cardLayout->addWidget(titleLabel);
     cardLayout->addWidget(new QLabel("Username"));
     cardLayout->addWidget(userField);
     cardLayout->addWidget(new QLabel("Password"));
     cardLayout->addWidget(passField);
+    cardLayout->addWidget(new QLabel("Login As"));
+    cardLayout->addWidget(roleCombo);
     cardLayout->addWidget(statusLabel);
     cardLayout->addSpacing(10);
     cardLayout->addWidget(loginBtn);
     cardLayout->addWidget(signupLink);
     cardLayout->addStretch();
-    mainLayout->addLayout(headerLayout);
 
-    mainLayout->addStretch();
-    mainLayout->addWidget(card,0,Qt::AlignCenter);
-    mainLayout->addStretch();
-
-
-    // Card Shadow Effect
-    // Create the shadow effect
+    // Card shadow
     QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect(this);
-    // 15-20 is usually the "sweet spot" for a soft modern look
     shadow->setBlurRadius(30);
-    // Setting X to 0 and Y to 5 makes the shadow appear slightly below the card
     shadow->setXOffset(-5);
     shadow->setYOffset(7);
-    // Use a light transparent black (Alpha 50-80) so it's not too harsh
     shadow->setColor(QColor(0, 0, 0, 50));
-    // Apply it to the card
     card->setGraphicsEffect(shadow);
 
-    // Connections
-    connect(loginBtn, &QPushButton::clicked, this, &LoginWindow::handleLogin);
+    // ── Assemble Page ──────────────────────────────────────────────
+    mainLayout->addLayout(headerLayout);
+    mainLayout->addStretch();
+    mainLayout->addWidget(card, 0, Qt::AlignCenter);
+    mainLayout->addStretch();
+
+    // ── Connections ────────────────────────────────────────────────
+    connect(loginBtn,   &QPushButton::clicked, this, &LoginWindow::handleLogin);
     connect(signupLink, &QPushButton::clicked, this, &LoginWindow::openSignup);
-    // When the user types in the username box, clear the error message
+
     connect(userField, &QLineEdit::textChanged, [this]() {
-        statusLabel->clear();
-        statusLabel->hide();
+        statusLabel->clear(); statusLabel->hide();
     });
     connect(passField, &QLineEdit::textChanged, [this]() {
-        statusLabel->clear();
-        statusLabel->hide();
+        statusLabel->clear(); statusLabel->hide();
     });
-    connect(themeToggleBtn, &QPushButton::clicked,[this](){
-        // isDarkMode = !isDarkMode;
+
+    // Hide the signup link when Admin role is selected (admins don't self-register)
+    connect(roleCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int /*index*/) {
+                bool isAdmin = (roleCombo->currentData().toString() == "admin");
+                signupLink->setVisible(!isAdmin);
+                statusLabel->hide();
+            });
+
+    connect(themeToggleBtn, &QPushButton::clicked, [this]() {
         emit themeChangeRequested();
     });
 }
 
+// ─── Login handler ────────────────────────────────────────────────────────────
+
 void LoginWindow::handleLogin() {
     QString user = userField->text().trimmed();
     QString pass = passField->text();
+    QString role = roleCombo->currentData().toString(); // "user" or "admin"
 
-    // 1. Mandatory Fields Check
+    // Mandatory fields
     if (user.isEmpty() || pass.isEmpty()) {
         statusLabel->setText("Fields cannot be empty.");
-        statusLabel->setStyleSheet("color: #E67E22;"); // Soft Warning Orange
+        statusLabel->setStyleSheet("color: #E67E22;");
         statusLabel->show();
         return;
     }
 
-    // 2. Credential Verification
-    // (In the future, 'db.loginUser(user, pass)' will replace this part)
+    // ── Admin path ────────────────────────────────────────────────
+    if (role == "admin") {
+        if (db.authenticateAdmin(user, pass)) {
+            QMessageBox::information(this, "Login", "Admin login successful.");
+            emit adminLoginSuccessful();
+        } else {
+            statusLabel->setText("Invalid admin credentials.");
+            statusLabel->setStyleSheet("color: #FF4D4D;");
+            statusLabel->show();
+        }
+        return;
+    }
+
+    // ── User path ─────────────────────────────────────────────────
     if (db.userExist(user)) {
-        int id = db.loginUser(user,pass);
-        int accountID = db.getAccountID(id);
+        int id = db.loginUser(user, pass);
         if (id != -1) {
+            int accountID = db.getAccountID(id);
             QMessageBox::information(this, "Login", "Login Successful");
-            UserSessionHandler* session = db.setUserInfo(id,accountID);
+            UserSessionHandler *session = db.setUserInfo(id, accountID);
             emit loginSuccessful(session);
         } else {
             statusLabel->setText("Incorrect Password. Please try again.");
-            statusLabel->setStyleSheet("color: #FF4D4D;"); // Error Red
+            statusLabel->setStyleSheet("color: #FF4D4D;");
             statusLabel->show();
         }
     } else {
@@ -164,23 +202,16 @@ void LoginWindow::handleLogin() {
 }
 
 void LoginWindow::openSignup() {
-    // Code to switch to SignupWindow class
     resetForm();
     emit signupRequested();
 }
 
-void LoginWindow::resetForm(){
-
-    // 1. Group all fields
-    QList<QLineEdit*> fields = { userField, passField};
-
-    // 2. Clear text and reset styles
-    for(QLineEdit* f : fields) {
+void LoginWindow::resetForm() {
+    for (QLineEdit *f : {userField, passField}) {
         f->clear();
         f->setStyleSheet("");
     }
-
-    // 3. Hide all potential error messages
+    roleCombo->setCurrentIndex(0);
     statusLabel->hide();
-
-};
+    signupLink->setVisible(true);
+}
