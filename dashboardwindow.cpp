@@ -57,6 +57,10 @@ void DashboardWindow::buildHeader(QVBoxLayout *mainLayout)
     dashTitleLabel = new QLabel("BankDash.");
     dashTitleLabel->setObjectName("dashTitleLabel");
 
+    // User Greetings
+    userGreetLabel = new QLabel("");
+    userGreetLabel->setObjectName("userGreetingLabel");
+
     // Account no (shown for user; hidden for admin)
     userAccountNo = new QLabel("");
     userAccountNo->setObjectName("userAccountNoLabel");
@@ -107,6 +111,7 @@ void DashboardWindow::buildHeader(QVBoxLayout *mainLayout)
     // Assemble header
     headerLayout->addWidget(creditLogoLabel, 0, Qt::AlignLeft);
     headerLayout->addWidget(dashTitleLabel,  0, Qt::AlignLeft);
+    headerLayout->addWidget(userGreetLabel,  0, Qt::AlignLeft);
     headerLayout->addWidget(userAccountNo,   0, Qt::AlignLeft);
     headerLayout->addStretch();
     headerLayout->addWidget(themeToggleBtn,  0, Qt::AlignRight);
@@ -134,6 +139,7 @@ void DashboardWindow::buildHeader(QVBoxLayout *mainLayout)
 
 void DashboardWindow::initializeUserDashboard(UserSessionHandler *session)
 {
+    userGreetLabel->setText("Welcome " + session->getFullName());
     // Show the account number in the header
     userAccountNo->setText("Account No.: " + QString::number(session->getAccountID()));
 

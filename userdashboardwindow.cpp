@@ -118,7 +118,7 @@ UserDashboardWindow::UserDashboardWindow(QWidget *parent) : QWidget(parent)
     cardRow->addWidget(incomeCard);
     cardRow->addWidget(expenseCard);
 
-    // ════════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════+════════════════
     //  MIDDLE ROW: Quick action buttons
     // ════════════════════════════════════════════════════════════════
     QWidget *actionWidget = new QWidget();

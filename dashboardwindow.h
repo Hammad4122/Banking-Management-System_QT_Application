@@ -40,6 +40,7 @@ signals:
 private:
     // Header widgets
     QLabel          *dashTitleLabel;
+    QLabel          *userGreetLabel;
     QLabel          *userAccountNo;
     QLabel          *userImgLabel;
     QPushButton     *settingBtn;
