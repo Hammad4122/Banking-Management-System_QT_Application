@@ -8,8 +8,8 @@ A desktop banking application built with **C++**, **Qt6**, and **Microsoft SQL S
 
 | Login Page |
 |---|
-<img width="899" height="472" alt="Screenshot 2026-05-15 232201" src="https://github.com/user-attachments/assets/4ec36ae8-d69d-474a-938f-474a9173c8a6" />
-<img width="899" height="472" alt="Screenshot 2026-05-15 232229" src="https://github.com/user-attachments/assets/625d5e10-a09a-4402-8270-c145347725a1" />
+<img width="1797" height="1016" alt="Screenshot 2026-05-24 194822" src="https://github.com/user-attachments/assets/a24c7812-39aa-45fa-80e9-d811f73d7e87" />
+<img width="1796" height="1011" alt="Screenshot 2026-05-24 195101" src="https://github.com/user-attachments/assets/ee6d9e47-4c76-4f65-a166-725e2549cc58" />
 
 
 | Signup Page |
@@ -22,6 +22,14 @@ A desktop banking application built with **C++**, **Qt6**, and **Microsoft SQL S
 |---|
 <img width="898" height="473" alt="Screenshot 2026-05-15 231040" src="https://github.com/user-attachments/assets/f3b189c9-9e74-4001-9aac-ee31a48f5af9" />
 <img width="897" height="472" alt="Screenshot 2026-05-15 231112" src="https://github.com/user-attachments/assets/2a7ae0e6-2de5-499e-8c42-3d4208c371cd" />
+<img width="1796" height="1014" alt="Screenshot 2026-05-24 194847" src="https://github.com/user-attachments/assets/a9653751-32e6-483d-9a5a-b00da986ab09" />
+<img width="1798" height="1014" alt="Screenshot 2026-05-24 194909" src="https://github.com/user-attachments/assets/99b85bc7-03dd-41bf-816f-4c9de54c5293" />
+<img width="1798" height="1019" alt="Screenshot 2026-05-24 194927" src="https://github.com/user-attachments/assets/5d7ff9e4-d55a-44c3-a8dc-63d68da28f98" />
+<img width="1798" height="1018" alt="Screenshot 2026-05-24 194943" src="https://github.com/user-attachments/assets/ba100384-2dc6-4035-859c-d610f87f8362" />
+
+
+
+
 
 
 | Transaction Dialog |
@@ -65,6 +73,7 @@ A desktop banking application built with **C++**, **Qt6**, and **Microsoft SQL S
 - [Project Structure](#project-structure)
 - [Security Model](#security-model)
 - [UI & Theme System](#ui--theme-system)
+- [Admin Dashboard](#admin-dashboard)
 - [Getting Started](#getting-started)
 - [How to Clone and Run](#how-to-clone-and-run)
 - [Known Limitations & Future Work](#known-limitations--future-work)
@@ -92,6 +101,11 @@ The project was developed as part of a 2nd-semester Software Engineering course 
   <img width="298" height="225" alt="Screenshot 2026-05-15 232607" src="https://github.com/user-attachments/assets/fd41a582-7192-4d15-a5bb-e5a48237d949" />
 
 - **Cross-Platform DB Support** — Windows uses local Windows Authentication; Linux uses remote SQL Auth via ODBC.
+- **Admin Dashboard** — A dedicated admin panel accessible via a role selector on the login screen, providing a system-wide overview and management tools without exposing user-facing transaction features.
+  - **Overview Tab** — Stat cards showing total registered users, total system balance, total deposits, and total withdrawals across all accounts, with a manual refresh button.
+  - **Users Tab** — A searchable, read-only table listing all registered users, filterable in real time by name, username, or email.
+  - **Accounts Tab** — A read-only table of all accounts with balances, refreshable on demand.
+  - **Credentials Tab** — A secure form allowing the admin to update their own username and/or password; requires the current password for verification before any change is committed.
 
 ---
 
@@ -118,6 +132,7 @@ The application follows a **layered architecture** with clear separation between
 ┌──────────────────────────────────────────┐
 │              Presentation Layer           │
 │  LoginWindow │ SignupWindow │ Dashboard   │
+│  UserDashboardWindow │ AdminDashboard     │
 │  TransactionDialog │ TPinDialog           │
 │         (Qt Widgets + QSS Themes)         │
 └────────────────────┬─────────────────────┘
@@ -156,6 +171,8 @@ The application follows a **layered architecture** with clear separation between
 **`UserSessionHandler` as the session object** — After login, a `UserSessionHandler` is heap-allocated by `BankDB::setUserInfo()` and passed up to `MainWindow`, which then injects it into the `DashboardWindow`. This decouples the database from the dashboard UI.
 
 **Signal-Slot for theme changes** — Each page emits a `themeChangeRequested` signal; `MainWindow` catches it, calls `BasePage::toggleGlobalTheme()` (which flips the static bool), then calls `applyCurrentTheme()` on all three pages. This keeps theme state globally consistent without any page needing to know about the others.
+
+**`DashboardWindow` as a sub-dashboard router** — Rather than a single monolithic dashboard, `DashboardWindow` wraps a `QStackedWidget` containing `UserDashboardWindow` and `AdminDashboardWindow` as two independent sub-widgets. `MainWindow` calls either `initializeUserDashboard()` or `initializeAdminDashboard()` after login, which switches the stack index and loads the appropriate data. This keeps user and admin concerns cleanly separated while sharing the common header.
 
 ---
 
@@ -218,9 +235,11 @@ BankingManagementSystem_Project/
 ├── basepage.h / .cpp           # Abstract base: DB connection, theme system
 ├── mainwindow.h / .cpp         # Root window: QStackedWidget router, signal hub
 │
-├── loginwindow.h / .cpp        # Login UI + credential validation
+├── loginwindow.h / .cpp        # Login UI + credential validation + role selector
 ├── signupwindow.h / .cpp       # Registration UI + field validation
-├── dashboardwindow.h / .cpp    # Main dashboard: card, table, action buttons
+├── dashboardwindow.h / .cpp    # Shared dashboard shell: header + sub-dashboard router
+├── userdashboardwindow.h / .cpp   # User sub-dashboard: debit card, transactions, actions
+├── admindashboardwindow.h / .cpp  # Admin sub-dashboard: overview, users, accounts, credentials tabs
 │
 ├── database.h / .cpp           # BankDB class: all SQL operations (DAL)
 ├── usersessionhandler.h / .cpp # In-memory session state after login
@@ -267,6 +286,25 @@ The application ships with two complete themes defined as QSS (Qt Style Sheets) 
 - Debit card: green gradient
 
 Theme state is stored as a `static bool BasePage::isDarkMode`. Toggling it and calling `applyCurrentTheme()` on all pages re-styles the entire application instantly. Icons (bank logo, credit card logo) are also swapped to match the active theme via `updateIcons()`.
+
+---
+
+## Admin Dashboard
+
+The admin panel is accessed by selecting **"Login as Admin"** from the role dropdown on the login page. No signup flow exists for admins — credentials are seeded directly in the database.
+
+After a successful admin login, `MainWindow` calls `initializeAdminDashboard()` on `DashboardWindow`, which switches the inner `QStackedWidget` to `AdminDashboardWindow` and calls `loadData()` to populate all views. The shared header (logo, title, theme toggle, logout) remains visible; the account number label is replaced with "Admin Panel".
+
+`AdminDashboardWindow` is organized as a `QTabWidget` with four tabs:
+
+| Tab | Contents |
+|---|---|
+| 📊 Overview | Four stat cards: total users, total system balance, total deposits, total withdrawals. Manual refresh button. |
+| 👥 Users | Searchable table of all registered users (name, username, email, etc.). Filter updates live as you type. |
+| 🏦 Accounts | Table of all accounts with balances. Refreshed lazily on tab switch or via the refresh button. |
+| 🔐 Credentials | Form to update the admin's own username and/or password. Requires current password verification before any change is saved. |
+
+Stat cards use a colored left-border accent style (`#adminStatCard`) rather than the global theme QSS, so they render consistently regardless of whether the user is in light or dark mode.
 
 ---
 
