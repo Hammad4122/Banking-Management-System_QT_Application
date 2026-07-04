@@ -411,7 +411,7 @@ make -j$(nproc)
 
 ## Author
 
-Developed by **Muhammad Hammad Ateeq & Muhammad Shayan Chaudhary**
+Developed by **Muhammad Hammad Ateeq**
 BSc Software Engineering — 2nd Semester
 `Bahria University, Islamabad`
 
