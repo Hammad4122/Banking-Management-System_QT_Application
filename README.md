@@ -23,7 +23,6 @@ A desktop banking application built with **C++**, **Qt6**, and **Microsoft SQL S
 <img width="898" height="473" alt="Screenshot 2026-05-15 231040" src="https://github.com/user-attachments/assets/f3b189c9-9e74-4001-9aac-ee31a48f5af9" />
 <img width="897" height="472" alt="Screenshot 2026-05-15 231112" src="https://github.com/user-attachments/assets/2a7ae0e6-2de5-499e-8c42-3d4208c371cd" />
 <img width="1796" height="1014" alt="Screenshot 2026-05-24 194847" src="https://github.com/user-attachments/assets/a9653751-32e6-483d-9a5a-b00da986ab09" />
-<img width="1798" height="1014" alt="Screenshot 2026-05-24 194909" src="https://github.com/user-attachments/assets/99b85bc7-03dd-41bf-816f-4c9de54c5293" />
 <img width="1798" height="1019" alt="Screenshot 2026-05-24 194927" src="https://github.com/user-attachments/assets/5d7ff9e4-d55a-44c3-a8dc-63d68da28f98" />
 <img width="1798" height="1018" alt="Screenshot 2026-05-24 194943" src="https://github.com/user-attachments/assets/ba100384-2dc6-4035-859c-d610f87f8362" />
 
